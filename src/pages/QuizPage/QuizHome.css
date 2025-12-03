@@ -1,0 +1,7 @@
+.infinite-menu-wrapper {
+    width: 100%;
+    height: 100%;
+    background-color: white; /* sfondo visibile dietro il canvas */
+    position: relative;
+    overflow: hidden;
+}

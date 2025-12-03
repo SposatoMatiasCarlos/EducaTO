@@ -1,0 +1,29 @@
+.percorso-banner {
+    padding: 1rem;
+    margin-top: 2rem; /* distanza dalla navbar */
+    width: 100%; /* occupa tutta la colonna */
+    border-radius: 1rem;
+    color: white;
+
+    /* effetto vetro con colore #28a745 */
+    background: rgba(40, 167, 69, 0.7); /* #28a745 con trasparenza */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+.progress-container {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50px;
+    height: 10px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    background: rgba(255, 255, 255, 0.9);
+    height: 100%;
+    border-radius: 50px;
+    transition: width 0.3s ease;
+}

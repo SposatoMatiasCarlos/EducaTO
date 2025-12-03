@@ -1,0 +1,59 @@
+
+
+/* Navbar stile cartoon/glassmorph */
+.navbar {
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(12px);
+    /*border-radius: 20px;*/
+    border: 2px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
+    /*margin: 10px 20px;
+    padding: 10px 20px;*/
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Logo modificato per avere colore unico o gradiente */
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.8rem;
+    color: #28a745; /* verde principale */
+    background: linear-gradient(90deg, #28a745, #20c997);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+
+/* Mini pannello utente */
+.user-panel {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-panel:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    transform: scale(1.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+}
+
+/* Card overview */
+.user-overview {
+    background: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(8px);
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    min-width: 120px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.user-overview span {
+    display: block;
+    font-weight: 600;
+    color: #28a745;
+}
