@@ -4,11 +4,15 @@ export interface User {
     id: number;
     username: string;
     password: string;
-    points: number;            // punti accumulati
+    ruolo: 'studente' | 'admin' | 'writer'
+    points: number;
     badge: "Barbone di dio" | "Investitore medio" | "Esperto Cryptoguru";
-    completedLessons: number[]; // array di lessonId completate
+    completedLessons: number[];
+    completedArticles: number[];
+    bonusReceived: number[]; // array di Percorso.id o id tesori già premiati
 }
 
+// ------------------------ Model del quiz -------------------- //
 
 // Insieme di lezioni
 export interface Percorso {
@@ -24,6 +28,7 @@ export interface Lesson {
     id: number;
     title: string;
     description: string;
+    points: 10 | 20 | 30;
     difficulty: "easy" | "medium" | "hard";
     questionIds: number[];          // id delle domande associate
     prerequisites?: number[];
@@ -36,4 +41,24 @@ export interface Question {
     options: string[];        // risposte possibili
     correctOptionIndex: number; // indice della risposta corretta
     explanation?: string;     // spiegazione per la risposta
+}
+
+// --------------------------------------------------------- //
+
+
+// -------------------- Model articoli -------------------- //
+
+// Una cartella che contiene articoli
+export interface Cartella {
+    id: number;
+    title: string;
+    description?: string;
+    articoli: number[];
+}
+
+
+export interface Articolo {
+    id: number;
+    title: string;
+    content: string;
 }

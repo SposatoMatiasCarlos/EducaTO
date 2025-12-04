@@ -1,0 +1,47 @@
+.esplora-articoli-container {
+    padding: 20px 40px;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.back-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.articoli-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.articolo-card {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.articolo-card h3 {
+    margin-bottom: 10px;
+}
+
+.leggi-piu-btn {
+    margin-top: auto;
+    padding: 8px 15px;
+    border-radius: 10px;
+    border: none;
+    background-color: #28a745;
+    color: white;
+    cursor: pointer;
+    align-self: flex-start;
+}

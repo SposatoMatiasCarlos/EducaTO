@@ -7,7 +7,6 @@ import {ArrowLeft} from "lucide-react";
 import Banner from "../../components/MyComponents/Banner/Banner.tsx";
 import Mappa from "../../components/MyComponents/Mappa/Mappa.tsx";
 import {Button, Modal} from "react-bootstrap";
-import Waves from '../../components/ThirdPartyComponents/Waves/Waves.tsx';
 
 
 
@@ -17,31 +16,18 @@ interface LearningPathProps {
     setLezioneAvviata: (lezione : Lesson | null) => void;
     percorso: Percorso;
     utente: User;
+    setPoints : (punti : number) => void;
 }
 
-function LearningPath({setPercorso, percorso, utente, setLezioneAvviata}: LearningPathProps): ReactElement {
+function LearningPath({setPercorso, percorso, utente, setLezioneAvviata, setPoints}: LearningPathProps): ReactElement {
 
     const lezioni: Lesson[] = getLessonsFromPercorso(percorso);
 
     const [LezioneSelezionata, setLezioneSelezionata] = useState<Lesson | null>(null);
 
+
     return (
         <>
-
-
-            <Waves
-                lineColor="#C7C7C7"
-                backgroundColor="rgba(255, 255, 255, 1)"
-                waveSpeedX={0.02}
-                waveSpeedY={0.01}
-                waveAmpX={40}
-                waveAmpY={20}
-                friction={0.9}
-                tension={0.01}
-                maxCursorMove={120}
-                xGap={12}
-                yGap={36}
-            />
 
             <div className="row">
                 <div className="col-4">
@@ -57,7 +43,7 @@ function LearningPath({setPercorso, percorso, utente, setLezioneAvviata}: Learni
             </div>
 
 
-            <Mappa lezioni={lezioni} utente={utente} setLezioneSelezionata={setLezioneSelezionata}/>
+            <Mappa percorso={percorso} lezioni={lezioni} utente={utente} setLezioneSelezionata={setLezioneSelezionata} setPoints={setPoints}/>
 
             <Modal
                 show={LezioneSelezionata !== null}

@@ -9,23 +9,24 @@ import {getUserById} from './data/data.ts';
 
 function App() {
 
-    const utente: User = getUserById(0);
+    const utente: User = getUserById(1);
 
     const [page, setPage] = useState("Home");
     const [user, setUser] = useState<User>(utente);
+    const [points, setPoints] = useState<number>(utente.points);
 
 
-    // home e learn non richiedono un utente
+    // home non richiede un utente
     const renderPage = () => {
         switch (page) {
             case "Home":
                 return <Home/>;
             case "Quiz":
-                return <QuizHome utente={user}/>;
+                return <QuizHome utente={user} setPoints={setPoints}/>;
             case "Learn":
-                return <Learn/>;
+                return <Learn utente={user}/>;
             default:
-                <Home/>;
+                return <Home/>;
         }
     };
 

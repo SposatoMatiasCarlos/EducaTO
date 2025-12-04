@@ -65,3 +65,38 @@
     transform: translateY(4px);
     box-shadow: 0px 4px 0px 0px #b8860b;
 }
+
+.popup-avviso-right {
+    position: absolute;
+    top: 50%;
+    left: 110%; /* leggermente a destra del bottone */
+    transform: translateY(-50%);
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-weight: bold;
+    white-space: nowrap;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    z-index: 100;
+    animation: fadeinout 3s forwards;
+}
+
+.popup-arrow {
+    position: absolute;
+    top: 50%;
+    left: -6px; /* freccia verso il bottone */
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+    border-right: 6px solid #f8d7da; /* stesso colore del popup */
+}
+
+@keyframes fadeinout {
+    0% { opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { opacity: 0; }
+}

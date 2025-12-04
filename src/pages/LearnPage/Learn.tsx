@@ -1,10 +1,26 @@
-import type {ReactElement} from "react";
+import {type ReactElement, useState} from "react";
+import type {Cartella, User} from "../../model/model";
+import {getCartelle} from "../../data/data";
+import "./Learn.css";
+import EsploraCartelle from "./EsploraCartelle.tsx";
+import EsploraArticoli from "./EsploraArticoli.tsx";
 
-function Learn(): ReactElement{
+interface LearnProps {
+    utente: User;
+}
 
-    return(
+function Learn({utente}: LearnProps): ReactElement {
+
+    const [cartelle, setCartelle] = useState<Cartella[]>(getCartelle());
+    const [cartellaselezionata, setCartellaSelezionata] = useState<Cartella | null>(null);
+
+
+
+    return (
         <>
-            <h1>Questa è la pagina con gli articoli</h1>
+            {cartellaselezionata ?
+                <EsploraArticoli setCartellaSelezionata={setCartellaSelezionata} cartellaaperta = {cartellaselezionata}/> :
+                <EsploraCartelle utente={utente} cartelle = {cartelle} setCartellaSelezionata={setCartellaSelezionata}/>}
         </>
     );
 }

@@ -5,14 +5,15 @@ import {getPercorsi} from '../../data/data.ts';
 import LearningPath from './LearningPath.tsx';
 import './QuizHome.css';
 import type {User} from '../../model/model.ts';
-import QuizViewer from '../../components/MyComponents/QuizViewer/QuizViewer.tsx';
+import QuizViewer from './QuizViewer.tsx';
 
 interface QuizHomeProps {
     utente: User;
+    setPoints: (punti : number)=>void;
 }
 
 
-function QuizHome({utente} : QuizHomeProps) : ReactElement {
+function QuizHome({utente, setPoints} : QuizHomeProps) : ReactElement {
 
     // Array di tutti i percorsi disponibili
     const percorsi : Percorso[] | undefined = getPercorsi();
@@ -27,7 +28,7 @@ function QuizHome({utente} : QuizHomeProps) : ReactElement {
     // Crea gli item da visualizzare nel menu
     const items = percorsi.map((percorso) => ({
         image: 'https://picsum.photos/300/300?grayscale',
-        link: `#`,
+        link: `Quiz`,
         title: percorso.title,
         description: percorso.description || "Un percorso da completare!",
         onClick: () => setPercorso(percorso)
@@ -40,6 +41,8 @@ function QuizHome({utente} : QuizHomeProps) : ReactElement {
                 <QuizViewer
                     lezione={LezioneAvviata}
                     onClose={() => setLezioneAvviata(null)} // torna alla mappa
+                    utente={utente}
+                    setPoints={setPoints}
                 />
             ) : PercorsoSelezionato ? (
                 <LearningPath
@@ -47,6 +50,7 @@ function QuizHome({utente} : QuizHomeProps) : ReactElement {
                     percorso={PercorsoSelezionato}
                     utente={utente}
                     setLezioneAvviata={setLezioneAvviata}
+                    setPoints={setPoints}
                 />
             ) : (
                 <div className="infinite-menu-wrapper" style={{

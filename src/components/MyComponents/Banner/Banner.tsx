@@ -19,27 +19,15 @@ function Banner({percorso, utente, lezioni} : BannerProprs): ReactElement{
 
     const progress = completed / lezioni.length;
 
+    console.log("progress: ", progress);
 
     return (
-        <>
-            <div className="percorso-banner">
-                <h2 className="fw-bold">{percorso.title}</h2>
-                <p className="mb-2">Lezioni totali: {lezioni.length}</p>
+        <div className="percorso-banner">
+            <h2 className="fw-bold">{percorso.title}</h2>
+            <p className="mb-2">Lezioni totali: {lezioni.length}</p>
 
-                {/* Barra di progresso */}
-                <div className="progress-container">
-                    <div
-                        className="progress-bar"
-                        style={{ width: `${progress * 100}%` }}
-                    />
-                </div>
-
-                <div className="d-flex justify-content-between mt-2">
-                    <span>{completed}/{lezioni.length} completate</span>
-                    <span>{Math.round(progress * 100)}%</span>
-                </div>
-            </div>
-        </>
+            <p>{completed}/{lezioni.length} completate – {Math.round(progress * 100)}%</p>
+        </div>
     );
 }
 
