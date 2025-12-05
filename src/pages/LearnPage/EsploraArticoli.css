@@ -1,47 +1,59 @@
-.esplora-articoli-container {
-    padding: 20px 40px;
-}
-
-.header {
+.header-row {
     display: flex;
     align-items: center;
-    gap: 20px;
+    justify-content: center;
+    position: relative;
     margin-bottom: 30px;
 }
 
 .back-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
+    position: absolute;
+    left: 20px;
+}
+
+.articoli-container {
+    background-color: #f5f5f5; /* grigino chiaro */
+    border-radius: 12px;
+    padding: 20px;
+    max-width: 1000px;
+    margin: 0 auto 30px auto;
+}
+
+
+
+.cartella-title {
+    text-align: center;
 }
 
 .articoli-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 20px;
+    padding: 20px;
 }
 
 .articolo-card {
-    background-color: #f9f9f9;
-    padding: 20px;
-    border-radius: 15px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
-
-.articolo-card h3 {
-    margin-bottom: 10px;
-}
-
-.leggi-piu-btn {
-    margin-top: auto;
-    padding: 8px 15px;
+    border: 1px solid #ddd;
     border-radius: 10px;
-    border: none;
-    background-color: #28a745;
-    color: white;
+    padding: 15px;
+    background-color: #fff;
     cursor: pointer;
-    align-self: flex-start;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.articolo-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.articolo-title {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.articolo-preview {
+    color: #666;
+    font-size: 0.95rem;
+    line-height: 1.4;
 }

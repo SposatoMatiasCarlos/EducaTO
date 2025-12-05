@@ -1,0 +1,189 @@
+.profilo-page {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* per considerare navbar */
+    min-height: calc(100vh - 120px); /* altezza navbar */
+    padding-top: 50px; /* distanza dalla navbar */
+    padding-bottom: 20px;
+}
+
+.profilo-card {
+    background: rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 20px;
+    padding: 40px 30px;
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transform-style: preserve-3d; /* necessario per tilt */
+    position: relative;
+    overflow: hidden;
+}
+
+
+/* Tilt + glare */
+.profilo-card::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: rgba(255,255,255,0.2);
+    transform: rotate(45deg) translateX(-100%) translateY(-100%);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+
+.profilo-card:hover {
+    box-shadow: 0 12px 35px rgba(0,0,0,0.25);
+}
+
+.profilo-card:hover::before {
+    opacity: 0.3;
+    transform: rotate(45deg) translateX(0) translateY(0);
+}
+
+
+/* Avatar */
+.profilo-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid rgba(255,255,255,0.5);
+    margin-bottom: 20px;
+}
+
+/* Username e ruolo */
+.profilo-username {
+    font-size: 1.8rem;
+    margin-bottom: 5px;
+    color: #000; /* nero */
+}
+
+.profilo-ruolo {
+    font-size: 1rem;
+    color: #000; /* nero */
+    margin-bottom: 20px;
+}
+
+/* Badge e punti */
+.profilo-badge, .profilo-points {
+    font-size: 1rem;
+    margin: 5px 0;
+    color: #000; /* nero */
+}
+
+/* Barra di progresso */
+.profilo-progress-wrapper {
+    margin: 15px 0;
+    text-align: left;
+}
+
+.profilo-progress-bar {
+    background-color: rgba(0, 0, 0, 0.1); /* chiaro ma visibile */
+    border-radius: 10px;
+    width: 100%;
+    height: 15px;
+    margin-top: 5px;
+    overflow: hidden;
+}
+
+.profilo-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #28a745, #28a745);
+    border-radius: 10px 0 0 10px;
+    transition: width 0.4s ease-in-out;
+}
+
+
+
+.avatar-wrapper {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    cursor: pointer;
+    border-radius: 50%;
+    overflow: hidden;
+    transition: transform 0.2s ease;
+    margin: 0 auto 20px; /* <-- centra e aggiunge spazio sotto */
+}
+
+.avatar-hover-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.4);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+    border-radius: 50%;
+}
+
+.avatar-wrapper:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+}
+
+
+
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* rimuoviamo background scuro */
+    background: transparent;
+    z-index: 1000; /* sopra tutto */
+}
+
+.overlay-content {
+    background: white; /* solo il box bianco */
+    padding: 30px;
+    border-radius: 20px; /* arrotondato */
+    text-align: center;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+/* Avatar nell'overlay */
+.avatar-options {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.option-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%; /* rotondi */
+    cursor: pointer;
+    border: 3px solid transparent;
+    object-fit: cover;
+    transition: transform 0.2s, border-color 0.2s;
+}
+
+.option-avatar:hover {
+    transform: scale(1.1);
+}
+
+.option-avatar.selected {
+    border-color: #28a745;
+}

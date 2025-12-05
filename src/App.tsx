@@ -5,6 +5,7 @@ import Home from './pages/Home/Home.tsx';
 import {useState} from "react";
 import type {User} from './model/model.ts';
 import {getUserById} from './data/data.ts';
+import Profilo from "./pages/Profilo/Profilo.tsx";
 
 
 function App() {
@@ -25,6 +26,8 @@ function App() {
                 return <QuizHome utente={user} setPoints={setPoints}/>;
             case "Learn":
                 return <Learn utente={user}/>;
+            case "Profilo":
+                return <Profilo utente={user} setUser={setUser}/>
             default:
                 return <Home/>;
         }

@@ -15,12 +15,11 @@ function Learn({utente}: LearnProps): ReactElement {
     const [cartellaselezionata, setCartellaSelezionata] = useState<Cartella | null>(null);
 
 
-
     return (
         <>
             {cartellaselezionata ?
-                <EsploraArticoli setCartellaSelezionata={setCartellaSelezionata} cartellaaperta = {cartellaselezionata}/> :
-                <EsploraCartelle utente={utente} cartelle = {cartelle} setCartellaSelezionata={setCartellaSelezionata}/>}
+                <EsploraArticoli utente={utente} setCartellaSelezionata={setCartellaSelezionata} cartellaaperta = {cartellaselezionata}/> :
+                <EsploraCartelle utente={utente} cartelle = {cartelle} setCartelle={setCartelle} setCartellaSelezionata={setCartellaSelezionata}/>}
         </>
     );
 }

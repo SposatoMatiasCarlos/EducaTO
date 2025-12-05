@@ -1,0 +1,63 @@
+.header-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    margin-bottom: 30px;
+}
+
+.back-btn {
+    position: absolute;
+    left: 20px;
+}
+
+
+.autore {
+    margin: 5px 0 0 0; /* piccolo margine sopra per separare */
+    color: #555;
+    font-weight: normal;
+}
+
+
+.articolo-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+
+
+.cartella-title {
+    text-align: center;
+    font-size: 2rem;
+    color: #333;
+}
+
+/* Container dell'articolo */
+.articolo-container {
+    background-color: #f7f7f7; /* grigino chiaro */
+    border-radius: 12px;
+    padding: 25px;
+    max-width: 800px;
+    width: 100%;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Contenuto dell'articolo */
+.articolo-content {
+    color: #333;
+    line-height: 1.6;
+    font-size: 1rem;
+}
+
+.articolo-content p {
+    margin-bottom: 1rem;
+}
+
+.articolo-content img {
+    max-width: 100%;
+    border-radius: 8px;
+    margin: 1rem 0;
+}
+

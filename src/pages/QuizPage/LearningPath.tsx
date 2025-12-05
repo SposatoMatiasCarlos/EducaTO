@@ -7,6 +7,8 @@ import {ArrowLeft} from "lucide-react";
 import Banner from "../../components/MyComponents/Banner/Banner.tsx";
 import Mappa from "../../components/MyComponents/Mappa/Mappa.tsx";
 import {Button, Modal} from "react-bootstrap";
+import AddContentButton from "../../components/MyComponents/AddContentButton/AddContentButton.tsx";
+import MyForm from "../../components/MyComponents/MyForm/MyForm.tsx";
 
 
 
@@ -24,6 +26,7 @@ function LearningPath({setPercorso, percorso, utente, setLezioneAvviata, setPoin
     const lezioni: Lesson[] = getLessonsFromPercorso(percorso);
 
     const [LezioneSelezionata, setLezioneSelezionata] = useState<Lesson | null>(null);
+    const [showOverlay, setShowOverlay] = useState<boolean>(false);
 
 
     return (
@@ -67,6 +70,8 @@ function LearningPath({setPercorso, percorso, utente, setLezioneAvviata, setPoin
                 </Modal.Footer>
             </Modal>
 
+            <AddContentButton setShowOverlay={setShowOverlay} utente={utente}/>
+            {showOverlay ? <MyForm tipo={"lezione"} setShowOverlay={setShowOverlay} /> : <></>}
         </>
     );
 }

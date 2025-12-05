@@ -4,6 +4,7 @@ export interface User {
     id: number;
     username: string;
     password: string;
+    avatarId: 0 | 1 | 2 | 3;
     ruolo: 'studente' | 'admin' | 'writer'
     points: number;
     badge: "Barbone di dio" | "Investitore medio" | "Esperto Cryptoguru";
@@ -52,7 +53,6 @@ export interface Question {
 export interface Cartella {
     id: number;
     title: string;
-    description?: string;
     articoli: number[];
 }
 
@@ -60,5 +60,6 @@ export interface Cartella {
 export interface Articolo {
     id: number;
     title: string;
+    author: string;
     content: string;
 }

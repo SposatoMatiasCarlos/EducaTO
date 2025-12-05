@@ -1,0 +1,36 @@
+.add-folder-btn {
+    width: 70px;
+    height: 70px;
+    border-radius: 20px;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+
+    background: rgba(255, 255, 255, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15),
+    0 0 10px rgba(255,255,255,0.3) inset;
+
+    transition: all 0.25s ease-in-out;
+    color: #333;
+
+    position: fixed;     /* Fisso sullo schermo */
+    bottom: 30px;        /* Distanza dal fondo */
+    right: 30px;         /* Distanza dal lato destro */
+    z-index: 1000;       /* Sopra gli altri contenuti */
+}
+
+.add-folder-btn:hover {
+    transform: scale(1.12);
+    background: rgba(255, 255, 255, 0.45);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.25),
+    0 0 14px rgba(255,255,255,0.5) inset;
+}
+
+.add-folder-btn:active {
+    transform: scale(1.06);
+    background: rgba(255, 255, 255, 0.55);
+}

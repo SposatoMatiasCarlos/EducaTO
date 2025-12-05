@@ -6,6 +6,8 @@ import LearningPath from './LearningPath.tsx';
 import './QuizHome.css';
 import type {User} from '../../model/model.ts';
 import QuizViewer from './QuizViewer.tsx';
+import AddContentButton from "../../components/MyComponents/AddContentButton/AddContentButton.tsx";
+import MyForm from "../../components/MyComponents/MyForm/MyForm.tsx";
 
 interface QuizHomeProps {
     utente: User;
@@ -23,6 +25,8 @@ function QuizHome({utente, setPoints} : QuizHomeProps) : ReactElement {
 
     // Rappresenta la lezione che l'utente vuole completare
     const [LezioneAvviata, setLezioneAvviata] = useState<Lesson | null>(null);
+
+    const [showOverlay, setShowOverlay] = useState<boolean>(false);
 
 
     // Crea gli item da visualizzare nel menu
@@ -62,8 +66,14 @@ function QuizHome({utente, setPoints} : QuizHomeProps) : ReactElement {
                     overflow: 'hidden'
                 }}>
                     <InfiniteMenu items={items} />
+
+
+                    <AddContentButton setShowOverlay={setShowOverlay} utente={utente}/>
+                    {showOverlay ? <MyForm tipo={"percorso"} setShowOverlay={setShowOverlay} /> : <></>}
+
                 </div>
             )}
+
         </>
     );
 }

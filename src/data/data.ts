@@ -5,8 +5,8 @@ import type {Question, User, Lesson, Percorso, Cartella, Articolo} from '../mode
 // ----------------------- Utenti --------------------- //
 
 const users: User[] = [
-    { id: 0, username: "mcs", password: "temp", ruolo: 'studente', badge: "Barbone di dio", points: 0, completedLessons:[], completedArticles:[], bonusReceived:[]},
-    { id: 1, username: "hudson", password: "temp", ruolo: 'admin', badge: "Barbone di dio", points: 0, completedLessons:[], completedArticles:[], bonusReceived:[]}
+    { id: 0, avatarId:0, username: "mcs", password: "temp", ruolo: 'studente', badge: "Barbone di dio", points: 0, completedLessons:[], completedArticles:[], bonusReceived:[]},
+    { id: 1, avatarId:1, username: "hudson", password: "temp", ruolo: 'admin', badge: "Barbone di dio", points: 0, completedLessons:[], completedArticles:[], bonusReceived:[]}
 ];
 
 export function getUserById(id: number): User | undefined{
@@ -23,6 +23,9 @@ export function aggiungiPuntiLezioneUtente(utente: User, punti: number): void {
     utente.points += punti;
 }
 
+export function impostaNuovoAvatarUtente(utente : User, newindex: number) : void{
+    utente.avatarId = newindex;
+}
 
 
 // ----------------------- Percorsi --------------------- //
@@ -87,6 +90,11 @@ export function hasCompletedLessons(percorsoId: number, lezioni: Lesson[], utent
     else if(tutteCompletate == false) return -1;
     else return 0;
 }
+
+export function getLessonNumber(){
+    return lessons.length;
+}
+
 
 // ----------------------- Domande --------------------- //
 const domande: Question[] = [
@@ -154,28 +162,15 @@ export function getQuestionsFromLesson(lesson: Lesson): Question[] {
 
 
 const articoli: Articolo[] = [
-    { id: 1, title: 'Domanda e Offerta', content: 'La legge della domanda e dell’offerta descrive come i prezzi si determinano nei mercati.' },
-    { id: 2, title: 'Inflazione e Deflazione', content: 'L’inflazione indica un aumento generale dei prezzi, la deflazione una loro diminuzione.' },
-    { id: 3, title: 'PIL e Indicatori Economici', content: 'Il PIL misura la ricchezza prodotta in un paese. Altri indicatori includono disoccupazione e tassi di interesse.' },
+    { id: 1, author:"hudson", title: 'Domanda e Offerta', content: 'La legge della domanda e dell’offerta descrive come i prezzi si determinano nei mercati.' },
+    { id: 2, author:"hudson", title: 'Inflazione e Deflazione', content: 'L’inflazione indica un aumento generale dei prezzi, la deflazione una loro diminuzione.' },
+    { id: 3, author:"hudson", title: 'PIL e Indicatori Economici', content: 'Il PIL misura la ricchezza prodotta in un paese. Altri indicatori includono disoccupazione e tassi di interesse.' },
 
-    { id: 4, title: 'Bilancio Familiare', content: 'Il bilancio familiare permette di pianificare entrate e uscite e risparmiare efficacemente.' },
-    { id: 5, title: 'Investimenti Base', content: 'Azioni, obbligazioni e fondi comuni sono strumenti per investire denaro.' },
-    { id: 6, title: 'Piani di Risparmio e Pensione', content: 'Risparmiare regolarmente e pianificare la pensione aiuta a garantire sicurezza finanziaria a lungo termine.' },
-
-    { id: 7, title: 'Borsa e Titoli', content: 'La borsa è un mercato regolamentato dove si comprano e vendono azioni, obbligazioni e altri strumenti finanziari.' },
-    { id: 8, title: 'Forex e Valute', content: 'Il mercato Forex è dove si scambiano valute straniere, influenzando commercio e investimenti.' },
-    { id: 9, title: 'Criptovalute', content: 'Le criptovalute sono valute digitali decentralizzate, come Bitcoin ed Ethereum.' },
-
-    { id: 10, title: 'Teoria dei Giochi', content: 'La teoria dei giochi studia le strategie ottimali in contesti competitivi e collaborativi.' },
-    { id: 11, title: 'Politica Monetaria', content: 'La politica monetaria gestisce l’offerta di moneta e i tassi di interesse per stabilizzare l’economia.' },
-    { id: 12, title: 'Analisi Fondamentale e Tecnica', content: 'L’analisi fondamentale valuta i dati economici, l’analisi tecnica studia i grafici dei prezzi.' }
 ];
 
 const cartelle: Cartella[] = [
-    { id: 1, title: 'Fondamenti di Economia', description: 'Concetti base di economia.', articoli: [1, 2, 3] },
-    { id: 2, title: 'Finanza Personale', description: 'Gestione del denaro e investimenti.', articoli: [4, 5, 6] },
-    { id: 3, title: 'Mercati Finanziari', description: 'Comprendere i mercati e strumenti finanziari.', articoli: [7, 8, 9] },
-    { id: 4, title: 'Economia Avanzata', description: 'Argomenti avanzati di economia e finanza.', articoli: [10, 11, 12] }
+    { id: 1, title: 'Fondamenti di Economia', articoli: [1, 2, 3] },
+    { id: 2, title: 'Finanza Personale', articoli: [] },
 ];
 
 
@@ -185,7 +180,21 @@ export function getCartelle() : Cartella[] {
 
 
 export function getArticoliFromCartella(cartella: Cartella): Articolo[] {
+
+
+
     return cartella.articoli
         .map(id => articoli.find(a => a.id === id))
         .filter((a): a is Articolo => a !== undefined); // filtra eventuali undefined
+}
+
+
+export function creaNuovaCartella(utente: User, cartella: Cartella): void {
+
+    // Solo admin o writer possono creare cartelle
+    if (!["admin", "writer"].includes(utente.ruolo)) {
+        throw new Error("Non hai i permessi per creare una nuova cartella.");
+    }
+
+    cartelle.push(cartella);
 }

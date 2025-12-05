@@ -1,5 +1,9 @@
 import TextPressure from "../../ThirdPartyComponents/TextPressure/TextPressure";
-import profilePic from "../../../assets/temp.jpg";
+import profilo0 from '../../../assets/temp.jpg';
+import profilo1 from '../../../assets/profilo1.png';
+import profilo2 from '../../../assets/profilo2.png';
+import profilo3 from '../../../assets/profilo3.png';
+
 import './Navbar.css'
 import BubbleMenu from "../../ThirdPartyComponents/BubbleMenu/BubbleMenu.tsx";
 import type {User} from '../../../model/model.ts';
@@ -10,6 +14,8 @@ interface NavbarProps {
     setPage: (page: string) => void;
     utente: User;
 }
+
+const avatarOptions = [profilo0, profilo1, profilo2, profilo3];
 
 
 function Navbar({setPage, utente}: NavbarProps): ReactElement {
@@ -62,7 +68,7 @@ function Navbar({setPage, utente}: NavbarProps): ReactElement {
 
 
             <div className="d-flex align-items-center gap-3 me-3">
-                <div className="me-2 user-panel user-overview">
+                <div className="me-2 user-panel user-overview" onClick={()=>setPage("Profilo")}>
                     {/* Mini pannello overview */}
                     <div>
                         <span className="text-black">{utente.username}</span>
@@ -72,7 +78,7 @@ function Navbar({setPage, utente}: NavbarProps): ReactElement {
 
                     <div>
                         <img
-                            src={profilePic}
+                            src={avatarOptions[utente.avatarId]}
                             alt="Profilo"
                             className="rounded-circle"
                             style={{width: '40px', height: '40px', objectFit: 'cover', border: '2px solid #28a745'}}
