@@ -20,7 +20,7 @@ public class CartellaService {
         cartelle = new ArrayList<Cartella>();
 
 
-        cartelle.add(new Cartella("Economia", Arrays.asList(1, 2, 3)));
+        cartelle.add(new Cartella("Economia", new ArrayList<>(Arrays.asList(1, 2, 3))));
         cartelle.add(new Cartella( "Arte", new ArrayList<>()));
         cartelle.add(new Cartella( "Finanza", new ArrayList<>()));
 
@@ -78,6 +78,19 @@ public class CartellaService {
         cartella.setId();
         cartelle.add(cartella);
         return cartella;
+    }
+
+
+    public boolean addArticoloToCartella(Cartella cartella, int articoloId) {
+
+        List<Integer> articoli = cartella.getArticoli();
+
+        if(!articoli.contains(articoloId)){
+            articoli.add(articoloId);
+            return true;
+        }
+
+        return false;
     }
 
 

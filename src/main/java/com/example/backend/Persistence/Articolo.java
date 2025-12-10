@@ -19,6 +19,8 @@ public class Articolo {
 
 
     public int getId(){ return this.id; }
+    public void setId(){ this.id = idcounter++; }
+
     public String getTitle(){ return this.title; }
     public String getAuthor(){ return this.author; }
     public String getContent(){ return this.content; }

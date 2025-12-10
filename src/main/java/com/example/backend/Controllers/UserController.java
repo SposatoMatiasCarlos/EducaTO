@@ -2,11 +2,12 @@ package com.example.backend.Controllers;
 
 import com.example.backend.Services.UserService;
 import com.example.backend.Persistence.User;
+import jakarta.servlet.http.HttpSession;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/utenti")
@@ -20,18 +21,30 @@ public class UserController {
     }
 
 
+    public static class Avatar {
+        private int index;
+        public int getIndex() { return index; }
+    }
+
+
+
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {
         List<User> users = userService.getUsers();
         return ResponseEntity.ok(users);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable int id) {
-        Optional<User> user = null;
-        if (user.isPresent()) {
-            return ResponseEntity.ok(user.get());
-        }
-        return ResponseEntity.notFound().build();
+
+
+    @PostMapping("/avatar")
+    public ResponseEntity<User> cambiaAvatar(HttpSession session, @RequestBody Avatar newavatar) {
+
+        User user = (User) session.getAttribute("user");
+        if (user == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        boolean changed = userService.cambiaAvatarUtente(user, newavatar.getIndex());
+        if (!changed) return ResponseEntity.badRequest().build();
+
+        return ResponseEntity.ok(user);
     }
 }

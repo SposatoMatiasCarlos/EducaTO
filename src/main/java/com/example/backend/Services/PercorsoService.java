@@ -1,5 +1,6 @@
 package com.example.backend.Services;
 
+import com.example.backend.Persistence.Domanda;
 import com.example.backend.Persistence.Lezione;
 import com.example.backend.Persistence.Percorso;
 import org.springframework.stereotype.Service;
@@ -33,6 +34,13 @@ public class PercorsoService {
                 .orElse(null);
     }
 
+    public Percorso getPercorsoById(int id) {
+        return percorsi.stream()
+                .filter(d -> d.getId() == id)
+                .findFirst()
+                .orElse(null);
+    }
+
 
 
     public List<Lezione> getLezioniFromPercorso(int id) {
@@ -52,6 +60,23 @@ public class PercorsoService {
         return result;
     }
 
+
+    public Percorso addNewPercorso(Percorso percorso){
+
+        if(percorso.getTitle() == null || percorso.getTitle().trim().isEmpty()){ return null; }
+
+        boolean exists = percorsi.stream().anyMatch(p -> p.getTitle().equalsIgnoreCase(percorso.getTitle().trim()));
+
+        if (exists) {
+            return null;
+        }
+
+        percorso.setLessons(new ArrayList<>());
+        percorso.setId();
+
+        percorsi.add(percorso);
+        return percorso;
+    }
 
 
 }

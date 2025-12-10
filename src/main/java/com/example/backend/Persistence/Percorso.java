@@ -19,6 +19,10 @@ public class Percorso {
 
 
     public int getId() { return this.id; }
+    public void setId() { this.id = idcounter++; }
+
     public String getTitle() { return this.title; }
+
     public List<Integer> getLessons() { return this.lessons; }
+    public void setLessons(List<Integer> lessons) { this.lessons = lessons; }
 }

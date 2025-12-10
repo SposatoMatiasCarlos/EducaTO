@@ -42,4 +42,7 @@ public class User {
     public List<Integer> getCompletedLessons() { return this.completedLessons; }
     public List<Integer> getCompletedArticles() { return this.completedArticles; }
     public List<Integer> getBonusReceived() { return this.bonusReceived; }
+
+    public void setAvatarId(int avatarId) { this.avatarId = avatarId; }
+    public void setPoints(int points) { this.points = points; }
 }

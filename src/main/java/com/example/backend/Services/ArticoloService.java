@@ -45,4 +45,18 @@ public class ArticoloService {
                 .orElse(null);
     }
 
+
+    public Articolo addNewArticolo(Articolo articolo) {
+        articolo.setId();
+
+        // potrei fare dei controlli piu approfonditi, mi limito a vedere se sono vuoti
+        if(articolo.getTitle() == null || articolo.getTitle().isEmpty()) return null;
+        if(articolo.getContent() == null || articolo.getContent().isEmpty()) return null;
+        if(articolo.getAuthor() == null || articolo.getAuthor().isEmpty()) return null;
+
+
+        articoli.add(articolo);
+        return articolo;
+    }
+
 }
