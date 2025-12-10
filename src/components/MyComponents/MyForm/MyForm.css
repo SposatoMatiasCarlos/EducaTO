@@ -63,3 +63,11 @@
     border-color: #28a745;
     box-shadow: 0 0 4px rgba(40,167,69,0.4);
 }
+
+
+.button-row {
+    display: flex;
+    justify-content: center; /* centra i bottoni */
+    gap: 20px; /* distanza tra i bottoni */
+    margin-top: 20px;
+}

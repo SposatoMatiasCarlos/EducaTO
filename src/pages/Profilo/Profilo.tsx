@@ -1,42 +1,68 @@
-import {ReactElement, useState} from "react";
-import type {User} from "../../model/model.ts";
+import {useContext, useEffect, useState} from "react";
+import type {ReactElement} from "react";
+import {UserContext} from '../../UserContext.ts';
 import './Profilo.css';
 import profilo0 from '../../assets/temp.jpg';
 import profilo1 from '../../assets/profilo1.png';
 import profilo2 from '../../assets/profilo2.png';
 import profilo3 from '../../assets/profilo3.png';
-import {getLessonNumber, impostaNuovoAvatarUtente} from '../../data/data.ts';
-
-interface ProfiloProps {
-    utente: User;
-    setUser: (utente: User) => void;
-}
+import type {User} from "../../model/model.ts";
 
 
 const avatarOptions = [profilo0, profilo1, profilo2, profilo3];
 
 
-function Profilo({utente, setUser}: ProfiloProps): ReactElement {
+function Profilo(): ReactElement {
 
-
-    const totaleLezioni = getLessonNumber();
-    const progressPercent = Math.min((utente.completedLessons.length / totaleLezioni) * 100, 100);
-
-
+    const [totaleLezioni, setTotaleLezioni] = useState(0);
     const [isOverlayOpen, setIsOverlayOpen] = useState(false);
-    const [useravatar, setAvatar] = useState(utente.avatarId);
+    const [selectedavatar, setSelectedAvatar] = useState<number| null>(null);
+    const {user, setUser} = useContext(UserContext);
+    useEffect(fetchNumeroLezioni, []);
 
-    const [selectedavatar, setSelectedAvatar] = useState<number | null>(null)
+    if(user == null) return <></>;
+
+    function fetchNumeroLezioni() {
+
+        let valid = true;
+
+        fetch("http://localhost:6767/percorsi/lezioni/count", {credentials: "include"})
+            .then(res => {
+                if (res.status === 200) return res.json();
+
+                throw Error("Errore fetch numero lezioni");
+            })
+            .then(dati => valid ? setTotaleLezioni(dati) : "")
+            .catch(err => console.log(err));
+
+
+        return () => {valid = false};
+    }
 
 
     function cambiaImmagineProfilo(index: number): void {
-        impostaNuovoAvatarUtente(utente, index);
-        setAvatar(index);
+        if(!user) return;
 
-        // Crea un nuovo oggetto utente aggiornato
-        const updatedUser = {...utente, avatarId: index};
-        setUser(updatedUser);
+
+        // post di UserAvatarID al server
+        fetch("http://localhost:6767/utenti/avatar", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ index })
+        })
+            .then(res => {
+                if(res.status === 200) return res.json();
+
+                throw new Error("Errore caricamento avatar utente");
+            })
+            .then((data : User) => setUser(data))
+            .catch(err => console.log(err));
+
     }
+
+
+    const progressPercent = Math.min((user.completedLessons.length / totaleLezioni) * 100, 100);
 
     return (
         <>
@@ -45,22 +71,22 @@ function Profilo({utente, setUser}: ProfiloProps): ReactElement {
                     <div className="avatar-wrapper" onClick={() => setIsOverlayOpen(true)}>
                         <img
                             className="profilo-avatar"
-                            src={avatarOptions[useravatar]}
-                            alt={`${utente.username} avatar`}
+                            src={avatarOptions[user.avatarId]}
+                            alt={`${user.username} avatar`}
                         />
                         <div className="avatar-hover-overlay">
                             <span>Cambia immagine profilo</span>
                         </div>
                     </div>
 
-                    <h2 className="profilo-username">{utente.username}</h2>
-                    <p className="profilo-ruolo">Ruolo: {utente.ruolo}</p>
-                    <p className="profilo-badge">Badge: {utente.badge}</p>
-                    <p>Articoli letti: {utente.completedArticles.length}</p>
-                    <p className="profilo-points">Punti: {utente.points}</p>
+                    <h2 className="profilo-username">{user.username}</h2>
+                    <p className="profilo-ruolo">Ruolo: {user.ruolo}</p>
+                    <p className="profilo-badge">Badge: {user.badge}</p>
+                    <p>Articoli letti: {user.completedArticles.length}</p>
+                    <p className="profilo-points">Punti: {user.points}</p>
 
                     <div className="profilo-progress-wrapper">
-                        <span>Lezioni completate: {utente.completedLessons.length}/{totaleLezioni}</span>
+                        <span>Lezioni completate: {user.completedLessons.length}/{totaleLezioni}</span>
                         <div className="profilo-progress-bar">
                             <div
                                 className="profilo-progress-fill"
@@ -101,6 +127,7 @@ function Profilo({utente, setUser}: ProfiloProps): ReactElement {
                     </div>
                 )}
             </div>
+
 
         </>
     );

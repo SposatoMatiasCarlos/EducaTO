@@ -1,54 +1,131 @@
-import {type ReactElement, useState} from "react";
-import type {Cartella, User} from "../../model/model.ts";
-import type {Articolo as ArticoloType} from "../model/model.ts";
+import {type ReactElement, useContext, useEffect, useState} from "react";
+import type {Cartella} from "../../model/model.ts";
+import type {Articolo as ArticoloType} from "../../model/model.ts";
 import {ArrowLeft} from "lucide-react";
-import {getArticoliFromCartella} from "../../data/data.ts";
 import './EsploraArticoli.css';
 import Articolo from "../../components/MyComponents/Articolo/Articolo.tsx";
 import AddContentButton from "../../components/MyComponents/AddContentButton/AddContentButton.tsx";
-import MyForm from '../../components/MyComponents/MyForm/MyForm.tsx';
-
+import EditorArticolo from '../../components/ThirdPartyComponents/EditorArticolo/EditorArticolo.tsx';
+import {UserContext} from '../../UserContext.ts';
 
 
 interface EsploraArticoliProps {
     setCartellaSelezionata: (cartella: Cartella | null) => void;
     cartellaaperta: Cartella;
-    utente : User;
 }
 
 
-function EsploraArticoli({setCartellaSelezionata, cartellaaperta, utente}: EsploraArticoliProps): ReactElement {
 
-    const articoli: ArticoloType[] = getArticoliFromCartella(cartellaaperta);
+function EsploraArticoli({setCartellaSelezionata, cartellaaperta}: EsploraArticoliProps): ReactElement {
+
+    const [articoli, setArticoli] = useState<ArticoloType[]>([]);
     const [articoloselezionato, setArticoloSelezionato] = useState<ArticoloType | null>(null);
+    const [autoreFilter, setAutoreFilter] = useState<string>("");
+    const [scriviArticolo, setScriviArticolo] = useState(false);
 
-    const nessunarticolo : boolean = (articoli.length == 0);
+    useEffect(fetchArticoli,[cartellaaperta.id]);
+
+    const {user} = useContext(UserContext); // serve a sapere l'autore durante la pubblicazione di un articolo
+
+    function fetchArticoli(){
+
+        let valid = true;
+
+        fetch(`http://localhost:6767/cartelle/${cartellaaperta.id}/articoli`, {credentials: "include"})
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error("Errore fetch articoli");
+                }
+                return res.json();
+            })
+            .then(data => valid ? setArticoli(data) : "")
+            .catch(err => {
+                console.error(err);
+            });
+
+        return () => { valid = false; };
+    }
+    function handlePublish(titolo : string, content : string) : void{
+
+        if(user == null || user.ruolo == "studente") return;
+
+        fetch(`http://localhost:6767/cartelle/${cartellaaperta.id}/articoli`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ title : titolo, author: user.username ,content: content})
+        })
+            .then(res =>
+            {
+                if(res.status === 200) return res.json();
+
+                throw new Error("Errore durante il caricamento dell'articolo");
+            })
+            .then(data => {
+                console.log("NuovoArticolo: ", data);
+                const nuovaLista: ArticoloType[] = [...articoli, data];
+                setArticoli(nuovaLista);
+            })
+            .catch(err => console.log(err));
+
+        setScriviArticolo(false);
+    }
 
 
 
-    // Permette di scrivere un nuovo articolo
-    const [showOverlay, setShowOverlay] = useState(false);
+    // Lista di autori unica dai dati
+    const autoriUnici = Array.from(new Set(articoli.map(a => a.author)));
 
-    const getPreview = (testo: string, maxLength = 100) => {
-        return testo.length > maxLength ? testo.slice(0, maxLength) + "..." : testo;
-    };
+    // Filtra articoli in base all'autore selezionato
+    const articoliFiltrati = autoreFilter
+        ? articoli.filter(a => a.author === autoreFilter)
+        : articoli;
+
 
     return (
         <>
-            {articoloselezionato ? (
-                <Articolo articolo={articoloselezionato} setArticoloSelezionato={setArticoloSelezionato} />
+            {scriviArticolo ? (
+                <EditorArticolo
+                    onClose={()=>setScriviArticolo(false)}
+                    onPublish={(titolo : string, contenthtml: string)=>handlePublish(titolo, contenthtml)}
+                />
+            ) : articoloselezionato ? (
+                <Articolo
+                    articolo={articoloselezionato}
+                    onClose={()=>setArticoloSelezionato(null)}
+                />
             ) : (
                 <>
                     <div className="header-row mt-5">
                         <button className="btn back-btn" onClick={() => setCartellaSelezionata(null)}>
                             <ArrowLeft size={40} />
                         </button>
-                        <h1 className="cartella-title">{cartellaaperta.title}</h1>
+                        <h1 className="cartella-title">{cartellaaperta.nome}</h1>
                     </div>
 
+
+
+
+
                     <div className="articoli-container">
+
+
+                        <div className="filtro-autore justify-content-center">
+                            <label>Filtra per autore: </label>
+                            <select
+                                value={autoreFilter}
+                                onChange={(e) => setAutoreFilter(e.target.value)}
+                            >
+                                <option value="">Tutti</option>
+                                {autoriUnici.map((autore) => (
+                                    <option key={autore} value={autore}>{autore}</option>
+                                ))}
+                            </select>
+                        </div>
+
+
                         <div className="articoli-grid">
-                            {articoli.map((articolo) => (
+                            {articoliFiltrati.map((articolo) => (
                                 <div
                                     key={articolo.id}
                                     className="articolo-card"
@@ -56,16 +133,13 @@ function EsploraArticoli({setCartellaSelezionata, cartellaaperta, utente}: Esplo
                                 >
                                     <h3 className="articolo-title">{articolo.title}</h3>
                                     <p className="articolo-preveiw">Autore: {articolo.author}</p>
-                                    <p className="articolo-preview">{getPreview(articolo.content)}</p>
                                 </div>
                             ))}
                         </div>
 
-                        {nessunarticolo ? <h4>Non ci sono articoli da visualizzare. </h4> : <></>}
+                        {articoliFiltrati.length === 0 && <h4>Non ci sono articoli da visualizzare.</h4>}
 
-                        <AddContentButton setShowOverlay={setShowOverlay} utente = {utente} />
-
-                        {showOverlay ? <MyForm tipo={"articolo"} setShowOverlay={setShowOverlay}/> : <></>}
+                        <AddContentButton onPress={() => setScriviArticolo(true)} />
                     </div>
                 </>
             )}

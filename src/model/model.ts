@@ -4,8 +4,8 @@ export interface User {
     id: number;
     username: string;
     password: string;
-    avatarId: 0 | 1 | 2 | 3;
-    ruolo: 'studente' | 'admin' | 'writer'
+    avatarId: number;
+    ruolo: 'studente' | 'admin' | 'mod'
     points: number;
     badge: "Barbone di dio" | "Investitore medio" | "Esperto Cryptoguru";
     completedLessons: number[];
@@ -19,7 +19,6 @@ export interface User {
 export interface Percorso {
     id: number;
     title: string;
-    description?: string;
     lessons: number[]; // array di lessonId nell’ordine del percorso
 }
 
@@ -40,7 +39,6 @@ export interface Question {
     id: number;
     text: string;
     options: string[];        // risposte possibili
-    correctOptionIndex: number; // indice della risposta corretta
     explanation?: string;     // spiegazione per la risposta
 }
 
@@ -52,7 +50,7 @@ export interface Question {
 // Una cartella che contiene articoli
 export interface Cartella {
     id: number;
-    title: string;
+    nome: string;
     articoli: number[];
 }
 

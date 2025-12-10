@@ -144,7 +144,6 @@ export default function BubbleMenu({
                 <div
                     ref={overlayRef}
                     className={`bubble-menu-items ${useFixedPosition ? 'fixed' : 'absolute'}`}
-                    aria-hidden={!isMenuOpen}
                 >
                     <ul className="pill-list" role="menu" aria-label="Menu links">
                         {items.map((item, idx) => (

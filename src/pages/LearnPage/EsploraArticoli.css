@@ -39,6 +39,21 @@
     background-color: #fff;
     cursor: pointer;
     transition: transform 0.2s, box-shadow 0.2s;
+    overflow: hidden;      /* importante: taglia ciò che fuoriesce */
+    width: 300px;          /* o la misura desiderata */
+    max-height: 200px;     /* limita l'altezza */
+}
+
+
+
+.articolo-preview {
+    flex-grow: 1;           /* fa crescere il contenuto fino allo spazio disponibile */
+    overflow: hidden;       /* taglia il testo in eccesso */
+    text-overflow: ellipsis; /* aggiunge "..." se il testo è troppo lungo */
+    display: -webkit-box;
+    -webkit-line-clamp: 3;  /* numero di righe massime visibili */
+    -webkit-box-orient: vertical;
+    word-break: break-word; /* va a capo nelle parole lunghe */
 }
 
 .articolo-card:hover {
@@ -56,4 +71,19 @@
     color: #666;
     font-size: 0.95rem;
     line-height: 1.4;
+}
+
+
+
+.filtro-autore {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.filtro-autore select {
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
 }

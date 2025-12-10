@@ -1,18 +1,21 @@
-import type {ReactElement} from "react";
-import type {User} from "../../../model/model.ts";
+import {type ReactElement, useContext} from "react";
 import './AddContentButton.css';
+import {UserContext} from '../../../UserContext.ts';
 
 interface ContentButtonProps{
-    setShowOverlay : (show : boolean) => void;
-    utente : User;
+    onPress : () => void;
 }
 
-function AddContentButton({setShowOverlay, utente} : ContentButtonProps) : ReactElement{
+function AddContentButton({onPress} : ContentButtonProps) : ReactElement{
+
+    const {user} = useContext(UserContext);
+    if (!user) return <></>;
+
 
     return(
         <>
-            { (utente.ruolo === "admin" || utente.ruolo === "writer") && (
-                <button className="add-folder-btn" onClick={() => setShowOverlay(true)}>
+            { (user.ruolo === "admin" || user.ruolo === "mod") && (
+                <button className="add-folder-btn" onClick={onPress}>
                     +
                 </button>
             )}

@@ -1,78 +1,132 @@
-import {type ReactElement, useState} from "react";
+import {type ReactElement, useContext, useEffect, useState} from "react";
 import InfiniteMenu from '../../components/ThirdPartyComponents/InfiniteMenu/InfiniteMenu.tsx';
 import type {Lesson, Percorso} from '../../model/model.ts';
-import {getPercorsi} from '../../data/data.ts';
 import LearningPath from './LearningPath.tsx';
 import './QuizHome.css';
-import type {User} from '../../model/model.ts';
 import QuizViewer from './QuizViewer.tsx';
 import AddContentButton from "../../components/MyComponents/AddContentButton/AddContentButton.tsx";
 import MyForm from "../../components/MyComponents/MyForm/MyForm.tsx";
-
-interface QuizHomeProps {
-    utente: User;
-    setPoints: (punti : number)=>void;
-}
+import {isPercorsoCompletato} from "../../data/data.ts";
+import {UserContext} from '../../UserContext.ts';
 
 
-function QuizHome({utente, setPoints} : QuizHomeProps) : ReactElement {
 
-    // Array di tutti i percorsi disponibili
-    const percorsi : Percorso[] | undefined = getPercorsi();
+function QuizHome(): ReactElement {
 
-    // Rappresenta il percorso ce
-    const [PercorsoSelezionato, setPercorso] = useState<Percorso | null>(null);
-
-    // Rappresenta la lezione che l'utente vuole completare
+    const [percorsi, setPercorsi] = useState<Percorso[]>([]);
+    const [percorsoSelezionato, setPercorsoSelezionato] = useState<Percorso | null>(null);
     const [LezioneAvviata, setLezioneAvviata] = useState<Lesson | null>(null);
-
     const [showOverlay, setShowOverlay] = useState<boolean>(false);
 
+    useEffect(fetchPercorsi, []);
 
-    // Crea gli item da visualizzare nel menu
-    const items = percorsi.map((percorso) => ({
-        image: 'https://picsum.photos/300/300?grayscale',
-        link: `Quiz`,
-        title: percorso.title,
-        description: percorso.description || "Un percorso da completare!",
-        onClick: () => setPercorso(percorso)
-    }));
+    const {user} = useContext(UserContext);
+    if(user == null) return <h3>Devi prima autenticarti</h3>;
+
+
+    let items = undefined;
+    if(percorsi.length != 0) {
+        items = percorsi.map((percorso) => {
+            const isCompleted = isPercorsoCompletato(user, percorso);
+
+            return {
+                image: isCompleted
+                    ? '/img/gray.jpg'
+                    : '/img/verde.png',
+                link: `Quiz`,
+                title: percorso.title,
+                description: "",
+                onClick: () => setPercorsoSelezionato(percorso)
+            };
+        });
+    }
+    else return(
+        <>
+            <h3>Nessun percorso da visualizzare</h3>;
+            <AddContentButton onPress={()=> setShowOverlay(true)}/>
+            {showOverlay &&
+                <MyForm
+                    tipo={"percorso"}
+                    onClose={()=>setShowOverlay(false)}
+                    onConfirm={(title : string) => { addNewPercorso(title)}}
+                />
+            }
+
+        </>
+    );
+
+
+    function fetchPercorsi(){
+
+        fetch("http://localhost:6767/percorsi", {credentials: "include"})
+            .then(res => res.json())
+            .then(data => {
+                console.log(data);
+                setPercorsi(data);
+            })
+            .catch(err => console.log(err));
+
+    }
+    function addNewPercorso(title : string){
+
+        fetch("http://localhost:6767/percorsi", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ title })
+        })
+            .then(res => {
+                if(res.status === 200) return res.json();
+
+                throw new Error("Errore durante il caricamento del nuovo percorso");
+            })
+            .then(data => {
+                console.log("Nuovo percorso: ", data); // log del nuovo percorso
+                const nuovaLista: Percorso[] = [...percorsi, data];
+                setPercorsi(nuovaLista);
+            })
+
+        setShowOverlay(false);
+    }
 
 
     return (
         <>
-            {LezioneAvviata ? (
+
+            { LezioneAvviata && (
                 <QuizViewer
                     lezione={LezioneAvviata}
-                    onClose={() => setLezioneAvviata(null)} // torna alla mappa
-                    utente={utente}
-                    setPoints={setPoints}
+                    percorso={percorsoSelezionato!} // sicuro, perché c’è LezioneAvviata
+                    onClose={() => setLezioneAvviata(null)}
                 />
-            ) : PercorsoSelezionato ? (
+            )}
+
+
+            {!LezioneAvviata && percorsoSelezionato && (
                 <LearningPath
-                    setPercorso={setPercorso}
-                    percorso={PercorsoSelezionato}
-                    utente={utente}
-                    setLezioneAvviata={setLezioneAvviata}
-                    setPoints={setPoints}
+                    onSelectedPercorso={(p: Percorso | null) => setPercorsoSelezionato(p)}
+                    percorso={percorsoSelezionato}
+                    onStartLesson={(lezione: Lesson | null) => setLezioneAvviata(lezione)}
                 />
-            ) : (
-                <div className="infinite-menu-wrapper" style={{
-                    height: 'calc(100vh - 100px)',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    position: 'relative',
-                    overflow: 'hidden'
-                }}>
+            )}
+
+
+            {!LezioneAvviata && !percorsoSelezionato && (
+                <div className="infinite-menu-wrapper">
                     <InfiniteMenu items={items} />
 
+                    <AddContentButton onPress={() => setShowOverlay(true)} />
 
-                    <AddContentButton setShowOverlay={setShowOverlay} utente={utente}/>
-                    {showOverlay ? <MyForm tipo={"percorso"} setShowOverlay={setShowOverlay} /> : <></>}
-
+                    {showOverlay && (
+                        <MyForm
+                            tipo={"percorso"}
+                            onClose={() => setShowOverlay(false)}
+                            onConfirm={(title: string) => addNewPercorso(title)}
+                        />
+                    )}
                 </div>
             )}
+
 
         </>
     );

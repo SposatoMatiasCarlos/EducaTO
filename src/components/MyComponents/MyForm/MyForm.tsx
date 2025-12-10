@@ -1,176 +1,63 @@
 import {type ReactElement, useState} from "react";
 import './MyForm.css';
-import type {Cartella} from "../../../model/model.ts";
-import {creaNuovaCartella} from '../../../data/data.ts';
+
 
 
 interface MyFormProps{
     tipo : string;
-    cartelle? : Cartella[];
-    setCartelle?: (cartelle : Cartella[]) => void;
-    setShowOverlay: (val : boolean) => void;
+    onConfirm: (titolo : string)=> void;
+    onClose: () => void;
 }
 
 
-function MyForm({tipo, cartelle, setCartelle, setShowOverlay} : MyFormProps) : ReactElement {
+function MyForm({tipo, onConfirm, onClose} : MyFormProps) : ReactElement {
 
     const [titolo, setTitolo] = useState("");
 
+    return (
+        <div className="overlay">
+            <div className="overlay-box">
+                <h2>
+                    {tipo === "cartella"
+                        ? "Crea una nuova cartella"
+                        : "Crea un nuovo percorso"}
+                </h2>
 
-    function creaCartella() {
+                <form
+                    className="form-group"
+                    onSubmit={(e) => {
+                        e.preventDefault(); // evita il refresh
+                        onConfirm(titolo);
+                    }}
+                >
+                    <label htmlFor="titolo">Nome</label>
+                    <input
+                        id="titolo"
+                        type="text"
+                        value={titolo}
+                        onChange={(e) => setTitolo(e.target.value)}
+                        placeholder={
+                            tipo === "cartella"
+                                ? "Inserisci il nome della cartella..."
+                                : "Inserisci il nome del percorso..."
+                        }
+                    />
 
-        if (titolo.trim() === "") return;
 
-        const nuovaCartella: Cartella = {id: Date.now(), title: titolo, articoli: []};
-
-        // TODO: Manda al server la nuova cartella
-        //creaNuovaCartella(utente, nuovaCartella);
-
-        // aggiorna lista cartelle
-        setCartelle([...cartelle, nuovaCartella]);
-
-
-        // reset
-        setTitolo("");
-        setShowOverlay(false);
-    }
-
-
-
-    if (tipo === "cartella") {
-        return (
-            <div className="overlay">
-                <div className="overlay-box">
-                    <h2>Crea una nuova Cartella</h2>
-
-                    <div className="form-group">
-                        <label>Nome</label>
-                        <input
-                            id="titolo"
-                            type="text"
-                            value={titolo}
-                            onChange={(e) => setTitolo(e.target.value)}
-                            placeholder="Inserisci il nome della cartella..."
-                        />
-                    </div>
 
                     <div className="button-row">
-                        <button className="btn btn-success" onClick={creaCartella}>Crea</button>
-                        <button
-                            className="btn btn-danger"
-                            style={{ marginLeft: '20px' }}
-                            onClick={() => setShowOverlay(false)}
-                        >
+                        <button type="button" onClick={() => onConfirm(titolo)} className="btn btn-success">
+                            Crea
+                        </button>
+                        <button type="button" className="btn btn-danger" onClick={onClose}>
                             Chiudi
                         </button>
                     </div>
-                </div>
+                </form>
             </div>
-        );
-    }
+        </div>
+    );
 
-
-    // TODO: implementare percorso, lezioni articoli
-    if(tipo === "percorso"){
-        return (
-            <div className="overlay">
-                <div className="overlay-box">
-                    <h2>Crea un nuovo percorso</h2>
-
-                    <div className="form-group">
-                        <label>Titolo</label>
-                        <input
-                            id="titolo"
-                            type="text"
-                            value={titolo}
-                            onChange={(e) => setTitolo(e.target.value)}
-                            placeholder="Inserisci il nome del percorso..."
-                        />
-                    </div>
-
-                    <div className="button-row">
-                        <button className="btn btn-success" onClick={()=>{}}>Crea</button>
-                        <button
-                            className="btn btn-danger"
-                            style={{ marginLeft: '20px' }}
-                            onClick={() => setShowOverlay(false)}
-                        >
-                            Chiudi
-                        </button>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-
-    if(tipo === "articolo"){
-        return (
-            <div className="overlay">
-                <div className="overlay-box">
-                    <h2>Crea un nuovo articolo</h2>
-
-                    <div className="form-group">
-                        <label>Titolo</label>
-                        <input
-                            id="titolo"
-                            type="text"
-                            value={titolo}
-                            onChange={(e) => setTitolo(e.target.value)}
-                            placeholder="Inserisci il titolo dell'articolo..."
-                        />
-                    </div>
-
-                    <div className="button-row">
-                        <button className="btn btn-success" onClick={()=>{}}>Crea</button>
-                        <button
-                            className="btn btn-danger"
-                            style={{ marginLeft: '20px' }}
-                            onClick={() => setShowOverlay(false)}
-                        >
-                            Chiudi
-                        </button>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-    if(tipo === "lezione"){
-        return (
-            <div className="overlay">
-                <div className="overlay-box">
-                    <h2>Crea una nuova lezione</h2>
-
-                    <div className="form-group">
-                        <label>Titolo</label>
-                        <input
-                            id="titolo"
-                            type="text"
-                            value={titolo}
-                            onChange={(e) => setTitolo(e.target.value)}
-                            placeholder="Inserisci il nome della lezione..."
-                        />
-                    </div>
-
-                    <div className="button-row">
-                        <button className="btn btn-success" onClick={()=>{}}>Crea</button>
-                        <button
-                            className="btn btn-danger"
-                            style={{ marginLeft: '20px' }}
-                            onClick={() => setShowOverlay(false)}
-                        >
-                            Chiudi
-                        </button>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-
-    // nessun tipo valido
-    return <></>;
 }
 
 export default MyForm;

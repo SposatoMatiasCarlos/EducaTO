@@ -1,25 +1,26 @@
-import type {ReactElement} from "react";
-import type {Percorso, Lesson, User} from '../../../model/model.ts';
+import {type ReactElement, useContext} from "react";
+import type {Percorso, Lesson} from '../../../model/model.ts';
 import './Banner.css';
+import {UserContext} from "../../../UserContext.ts";
 
 interface BannerProprs{
     percorso: Percorso;
-    utente: User;
     lezioni: Lesson[];
 }
 
 
-function Banner({percorso, utente, lezioni} : BannerProprs): ReactElement{
+function Banner({percorso, lezioni} : BannerProprs): ReactElement{
+
+    const {user} = useContext(UserContext);
 
 
-    const completed = utente?.completedLessons.filter(id =>
+    const completed = user?.completedLessons.filter(id =>
         percorso.lessons.includes(id)
     ).length ?? 0;
 
 
     const progress = completed / lezioni.length;
 
-    console.log("progress: ", progress);
 
     return (
         <div className="percorso-banner">

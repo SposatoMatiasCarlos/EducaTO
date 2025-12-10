@@ -6,19 +6,21 @@ import profilo3 from '../../../assets/profilo3.png';
 
 import './Navbar.css'
 import BubbleMenu from "../../ThirdPartyComponents/BubbleMenu/BubbleMenu.tsx";
-import type {User} from '../../../model/model.ts';
-import type {ReactElement} from "react";
+import {UserContext} from '../../../UserContext.ts';
+import {type ReactElement, useContext} from "react";
 
 
 interface NavbarProps {
     setPage: (page: string) => void;
-    utente: User;
+    onLogout: () => void;
 }
 
 const avatarOptions = [profilo0, profilo1, profilo2, profilo3];
 
 
-function Navbar({setPage, utente}: NavbarProps): ReactElement {
+function Navbar({setPage, onLogout}: NavbarProps): ReactElement {
+
+    const {user} = useContext(UserContext);
 
     const items = [
         {
@@ -30,14 +32,14 @@ function Navbar({setPage, utente}: NavbarProps): ReactElement {
         },
         {
             label: 'Quiz',
-            ariaLabel: 'About',
+            ariaLabel: 'Quiz',
             rotation: 8,
             hoverStyles: {bgColor: '#10b981', textColor: '#ffffff'},
             onClick: ()=> setPage("Quiz")
         },
         {
             label: 'Impara',
-            ariaLabel: 'Projects',
+            ariaLabel: 'Impara',
             rotation: 8,
             hoverStyles: {bgColor: '#f59e0b', textColor: '#ffffff'},
             onClick: ()=> setPage("Learn")
@@ -68,23 +70,51 @@ function Navbar({setPage, utente}: NavbarProps): ReactElement {
 
 
             <div className="d-flex align-items-center gap-3 me-3">
-                <div className="me-2 user-panel user-overview" onClick={()=>setPage("Profilo")}>
-                    {/* Mini pannello overview */}
-                    <div>
-                        <span className="text-black">{utente.username}</span>
-                        <span className="text-danger">{utente.badge}</span>
-                        <span>{utente.points}</span>
-                    </div>
 
-                    <div>
-                        <img
-                            src={avatarOptions[utente.avatarId]}
-                            alt="Profilo"
-                            className="rounded-circle"
-                            style={{width: '40px', height: '40px', objectFit: 'cover', border: '2px solid #28a745'}}
-                        />
+
+
+                {user ? (
+                    <div className="d-flex align-items-center gap-2">
+
+                        <button
+                            className="btn-logout"
+                            title="Logout"
+                            onClick={onLogout}
+                        >
+                            Logout
+                        </button>
+
+
+
+
+                        <div className="me-2 user-panel user-overview" onClick={() => setPage("Profilo")}>
+                            <div>
+                                <span className="fw-bold text-black">{user.username}</span>
+                                <span className="text-danger fw-bold">{user.badge}</span>
+                                <span className="fw-bold">{user.points}</span>
+                            </div>
+
+                            <div>
+                                <img
+                                    src={avatarOptions[user.avatarId]}
+                                    alt="Profilo"
+                                    className="rounded-circle user-avatar"
+                                />
+                            </div>
+                        </div>
+
+
+
+
                     </div>
-                </div>
+                ) : (
+                    <button
+                        className="btn btn-success"
+                        onClick={() => setPage("Login")}
+                    >
+                        Accedi
+                    </button>
+                )}
 
 
                 <BubbleMenu
@@ -98,6 +128,7 @@ function Navbar({setPage, utente}: NavbarProps): ReactElement {
                     animationDuration={0.5}
                     staggerDelay={0.12}
                 />
+
             </div>
 
         </div>

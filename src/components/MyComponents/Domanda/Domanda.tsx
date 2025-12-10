@@ -5,10 +5,10 @@ import './Domanda.css';
 
 interface DomandaProps{
     domanda : Question;
-    handleAnswer: (sbagliata : boolean) => void;
+    onAnswer: (sbagliata : boolean) => void;
 }
 
-function Domanda({domanda, handleAnswer}: DomandaProps): ReactElement {
+function Domanda({domanda, onAnswer}: DomandaProps): ReactElement {
 
     const [selected, setSelected] = useState<number | null>(null);
     const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
@@ -57,7 +57,7 @@ function Domanda({domanda, handleAnswer}: DomandaProps): ReactElement {
                         onClick={() => {
                             setSelected(null);
                             setIsCorrect(null);
-                            handleAnswer(!isCorrect);
+                            onAnswer(!isCorrect);
                         }}
                     >
                         Avanti →

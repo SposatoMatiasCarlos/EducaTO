@@ -37,11 +37,26 @@
 /* Container dell'articolo */
 .articolo-container {
     background-color: #f7f7f7; /* grigino chiaro */
+    max-width: 800px;          /* adatta alla tua pagina */
+    max-height: 600px;         /* limita l'altezza */
+    overflow: auto;             /* scroll verticale se necessario */
     border-radius: 12px;
     padding: 25px;
     max-width: 800px;
+    word-break: break-word;
     width: 100%;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+
+
+.articolo-container p,
+.articolo-container h1,
+.articolo-container h2,
+.articolo-container h3,
+.articolo-container li {
+    margin: 0 0 1rem 0;
+    word-break: break-word;
 }
 
 /* Contenuto dell'articolo */

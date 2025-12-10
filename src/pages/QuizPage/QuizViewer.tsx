@@ -1,93 +1,66 @@
-import type {Lesson, Question, User} from "../../model/model.ts";
-import {type ReactElement, useEffect, useState} from "react";
-import {aggiornaLezioniSuperateUtente, aggiungiPuntiLezioneUtente, getQuestionsFromLesson} from '../../data/data.ts';
-import TextType from "../../components/ThirdPartyComponents/TextType/TextType.tsx";
+import type {Lesson, Question, Percorso} from "../../model/model.ts";
+import {type ReactElement, useContext, useEffect, useState} from "react";
+import {aggiornaLezioniSuperateUtente, aggiungiPuntiLezioneUtente} from '../../data/data.ts';
 import Domanda from "../../components/MyComponents/Domanda/Domanda.tsx";
 import Vite from "../../components/MyComponents/Vite/Vite.tsx";
 import {ArrowLeft} from "lucide-react";
-import vittoria from "../../assets/vittoria.mp4";
-import sconfitta from '../../assets/sconfitta.mp4';
 import FineQuiz from "../../components/MyComponents/FineQuiz/FineQuiz.tsx";
+import {UserContext} from "../../UserContext.ts";
 
 interface QuizViewerProps {
     lezione: Lesson;
     onClose: () => void;
-    utente: User;
-    setPoints: (points: number) => void;
+    percorso: Percorso;
 }
 
 
-function QuizViewer({lezione, onClose, utente, setPoints}: QuizViewerProps): ReactElement {
+function QuizViewer({lezione, percorso, onClose}: QuizViewerProps): ReactElement {
 
-    const domande: Question[] = getQuestionsFromLesson(lezione);
+    const {user} = useContext(UserContext);
+    const [domande, setDomande] = useState<Question[]>([]);
+    const [errori, setErrori] = useState(0);
+    const [vite, setVite] = useState(3);
 
+    const finito = vite <= 0 || domande.length === 0;
 
-    // Indice domanda corrente
-    const [indicecorrente, setIndiceDomanda] = useState(0);
-
-    // Numero di risposte sbagliate
-    const [sbagliate, setSbagliate] = useState(0);
-
-    // Domande finite
-    const [finito, setFinito] = useState(false);
-
-    // Stato per le vite
-    const [numeroVite, setVite] = useState(3);
+    useEffect(fetchDomande, [lezione.id, percorso.id]);
+    useEffect(handleQuizCompletato, [finito, user]);
 
 
-    const domandacorrente = domande[indicecorrente];
-    if (!domandacorrente) return <p>Nessuna domanda disponibile.</p>;
+    function fetchDomande(){
+        fetch(`http://localhost:6767/percorsi/${percorso.id}/lezioni/${lezione.id}/domande`, {credentials: "include"})
+            .then(res => {
+                if (res.status === 200) return res.json();
+                else throw Error("Errore fetch domande");
+            })
+            .then(data => {
+                setDomande(data);
+                console.log("Domande: ", data);
+            })
+            .catch(err => console.log(err));
+    }
+    function handleQuizCompletato(){
+        if (finito && errori < 3) {
+            aggiornaLezioniSuperateUtente(user, lezione.id);
+            aggiungiPuntiLezioneUtente(user, lezione.points);
+        }
+    }
+    function handleAnswer(sbagliata: boolean) {
 
-
-    const handleAnswer = (sbagliata: boolean) => {
-
-        // se la risposta è sbagliata diminuisce di 1 le vite
         if (sbagliata) {
-            setSbagliate(prev => prev + 1);
-            setVite(prev => prev - 1);
+            setErrori(e => e + 1);
+            setVite(v => v - 1);
         }
 
-        // Se questa era l'ultima domanda passo schermata finale
-        if (indicecorrente === domande.length - 1) {
-            setFinito(true);
-            return;
-        }
-
-        // Altrimenti passa alla successiva
-        setIndiceDomanda(prev => prev + 1);
-    };
-
-
-    // Facendo cosi le funzioni di aggiornamento dipendono solo
-    // dai valori finito e numeroVite e quando faccio setPoints
-    // per aggiornare i dati dell'utente nella navbar non ho un loop infinito
-    // TODO: se ho gia completato la lezione in precedenza non devo aggiungere i punti
-    useEffect(() => {
-        if (finito || numeroVite <= 0) {
-            const superata = sbagliate < 3;
-            if (superata) {
-                aggiornaLezioniSuperateUtente(utente, lezione.id);
-                aggiungiPuntiLezioneUtente(utente, lezione.points);
-                setPoints(utente.points + lezione.points);
-            }
-        }
-    }, [finito, numeroVite]);
-
-
-
-    if (finito || numeroVite <= 0) {
-        const superata : boolean = sbagliate < 3;
-        return (
-            <>
-                <FineQuiz superata = {superata} onClose={onClose}/>
-            </>
-        );
+        // Rimuovo la domanda corrente (la prima)
+        setDomande(prev => prev.slice(1));
     }
 
 
 
+    if (finito) return <FineQuiz superata={errori < 3} onClose={onClose} />;
+    if (domande.length === 0) return <p>Nessuna domanda disponibile.</p>;
 
-    console.log("Domande: ", domande);
 
     return (
         <>
@@ -101,13 +74,13 @@ function QuizViewer({lezione, onClose, utente, setPoints}: QuizViewerProps): Rea
                 <div className="col-4"></div>
 
                 <div className="col-4 mt-5">
-                    <Vite vite={numeroVite} maxVite={3}/>
+                    <Vite vite={vite} maxVite={3}/>
                 </div>
             </div>
 
 
             <div className="row justify-content-center">
-                <Domanda domanda={domandacorrente} handleAnswer={handleAnswer}/>
+                <Domanda domanda={domande[0]} onAnswer={handleAnswer}/>
             </div>
         </>
 

@@ -1,25 +1,54 @@
-import {type ReactElement, useState} from "react";
-import type {Cartella, User} from "../../model/model";
-import {getCartelle} from "../../data/data";
+import {type ReactElement, useEffect, useState} from "react";
+import type {Cartella} from "../../model/model";
 import "./Learn.css";
 import EsploraCartelle from "./EsploraCartelle.tsx";
 import EsploraArticoli from "./EsploraArticoli.tsx";
 
-interface LearnProps {
-    utente: User;
-}
 
-function Learn({utente}: LearnProps): ReactElement {
 
-    const [cartelle, setCartelle] = useState<Cartella[]>(getCartelle());
+function Learn(): ReactElement {
+
+    const [cartelle, setCartelle] = useState<Cartella[]>([]);
     const [cartellaselezionata, setCartellaSelezionata] = useState<Cartella | null>(null);
 
 
+    function fetchCartelle() {
+        let valid = true;
+
+
+        fetch("http://localhost:6767/cartelle", {credentials: "include"})
+            .then(res => {
+                if(res.status === 200) return res.json();
+                else throw Error("Errore Fetch Cartelle")
+
+            })
+            .then(data => valid ? setCartelle(data) : "")
+            .catch(err => console.log(err));
+
+        console.log(cartelle);
+
+        // funzione di cleanup, evita di fare setCartelle quando il componente è unmounted
+        return () => {
+            valid = false;
+        };
+
+    }
+    useEffect(fetchCartelle, []);
+
     return (
         <>
-            {cartellaselezionata ?
-                <EsploraArticoli utente={utente} setCartellaSelezionata={setCartellaSelezionata} cartellaaperta = {cartellaselezionata}/> :
-                <EsploraCartelle utente={utente} cartelle = {cartelle} setCartelle={setCartelle} setCartellaSelezionata={setCartellaSelezionata}/>}
+            {cartellaselezionata ? (
+                <EsploraArticoli
+                    setCartellaSelezionata={setCartellaSelezionata}
+                    cartellaaperta={cartellaselezionata}
+                />
+            ) : (
+                <EsploraCartelle
+                    cartelle={cartelle}
+                    setCartelle={setCartelle}
+                    setCartellaSelezionata={setCartellaSelezionata}
+                />
+            )}
         </>
     );
 }
