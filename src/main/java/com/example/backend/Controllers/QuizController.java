@@ -3,9 +3,11 @@ package com.example.backend.Controllers;
 
 import com.example.backend.Persistence.Domanda;
 import com.example.backend.Persistence.Lezione;
+import com.example.backend.Persistence.Percorso;
 import com.example.backend.Persistence.User;
 import com.example.backend.Services.DomandaService;
 import com.example.backend.Services.LezioneService;
+import com.example.backend.Services.PercorsoService;
 import com.example.backend.Services.UserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
@@ -21,12 +23,14 @@ public class QuizController {
     private final DomandaService domandaService;
     private final LezioneService lezioneService;
     private final UserService userService;
+    private final PercorsoService percorsoService;
 
 
     // ================================================ //
 
-    public QuizController(DomandaService domandaService, UserService userService, LezioneService lezioneService) {
+    public QuizController(DomandaService domandaService, UserService userService, LezioneService lezioneService, PercorsoService percorsoService) {
         this.domandaService = domandaService;
+        this.percorsoService = percorsoService;
         this.userService = userService;
         this.lezioneService = lezioneService;
     }
@@ -100,7 +104,6 @@ public class QuizController {
 
 
 
-
     @PostMapping("/risposta")
     public ResponseEntity<AnswerResponse> answerQuestion(
             @RequestBody AnswerRequest request,
@@ -160,11 +163,11 @@ public class QuizController {
         if (user == null) return ResponseEntity.status(401).build();
 
         Boolean active = (Boolean) session.getAttribute("quizActive");
-        if (active == null || !active) return ResponseEntity.badRequest().build();
-
         Integer storedLezioneId = (Integer) session.getAttribute("quizLezioneId");
-        if (!storedLezioneId.equals(lezioneId))
+
+        if (active == null || !active || storedLezioneId == null || !storedLezioneId.equals(lezioneId)) {
             return ResponseEntity.badRequest().build();
+        }
 
         Integer errori = (Integer) session.getAttribute("errori");
         Integer vite = (Integer) session.getAttribute("vite");
@@ -173,7 +176,7 @@ public class QuizController {
 
         CompleteResponse resp = new CompleteResponse();
 
-        // Validazione del quiz
+        // Validazione dello stato del quiz
         if (errori == null || vite == null || risposte == null || tot == null) {
             resp.superata = false;
             resp.message = "Quiz non valido.";
@@ -188,35 +191,76 @@ public class QuizController {
             return ResponseEntity.badRequest().body(resp);
         }
 
+        // Controllo se l'utente ha già completato la lezione
+        if (userService.haCompletatoLezione(user, lezioneId)) {
+            resp.superata = errori < 3;
+            resp.puntiAggiunti = 0;
+            resp.message = "Lezione già completata in precedenza.";
+            resp.utente = user;
+            cleanup(session);
+            return ResponseEntity.ok(resp);
+        }
+
         // Valutazione del quiz
         if (errori < 3) {
-            // aggiunge lezione completata e punti
-            boolean aggiungi = true;
+            boolean aggiungiLezione = userService.aggiungiLezioneCompletata(user, lezioneId);
 
-            if(!userService.aggiungiLezioneCompletata(user, lezioneId)) aggiungi = false;
             Lezione lezione = lezioneService.getLezioneById(lezioneId);
             int punti = lezione.getPoints();
-            if(!userService.aggiungiPunti(user, punti)) aggiungi = false;
 
-            if(!aggiungi){
-                cleanup(session);
-                return ResponseEntity.internalServerError().build();
-            }
+            boolean aggiungiPunti = userService.aggiungiPunti(user, punti);
 
             resp.superata = true;
-            resp.puntiAggiunti = punti;
+            resp.puntiAggiunti = (aggiungiLezione && aggiungiPunti) ? punti : 0;
             resp.message = "Lezione completata con successo!";
-            resp.utente = user;
         } else {
             resp.superata = false;
             resp.puntiAggiunti = 0;
             resp.message = "Lezione fallita.";
-            resp.utente = user;
         }
 
+        resp.utente = user;
+
+        // Pulizia e update sessione
+        session.setAttribute("user", user);
         cleanup(session);
+
         return ResponseEntity.ok(resp);
     }
+
+
+    @PostMapping("/abbandona")
+    public ResponseEntity<Void> abbandona(HttpSession session) {
+        if(session.getAttribute("user") == null) return ResponseEntity.badRequest().build();
+
+        cleanup(session);
+        return ResponseEntity.ok().build();
+    }
+
+
+
+
+    @PostMapping("/bonus")
+    public ResponseEntity<User> aggiungiPuntiBonus(HttpSession session,
+                                                   @RequestParam(required = true) int idPercorso) {
+
+        User user = (User) session.getAttribute("user");
+
+        if (user == null) { return ResponseEntity.status(401).build(); }
+
+        Percorso percorso = percorsoService.getPercorsoById(idPercorso);
+        if(percorso == null) return ResponseEntity.badRequest().build();
+
+
+        List<Integer> lezioniPercorso = percorso.getLessons();
+        boolean bonusAssegnato = userService.aggiungiBonus(user, idPercorso, lezioniPercorso);
+        session.setAttribute("user", user);
+
+        if (!bonusAssegnato) { return ResponseEntity.badRequest().body(user); }
+        else return ResponseEntity.ok(user);
+    }
+
+
 
 
 
@@ -229,5 +273,6 @@ public class QuizController {
         session.removeAttribute("domandeTotali");
         session.removeAttribute("risposteDate");
     }
+
 
 }

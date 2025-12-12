@@ -26,14 +26,6 @@ public class PercorsoService {
 
     public List<Percorso> getPercorsi() { return this.percorsi; }
 
-
-    public Percorso getPercorso(int id) {
-        return percorsi.stream()
-                .filter(p -> p.getId() == id)
-                .findFirst()
-                .orElse(null);
-    }
-
     public Percorso getPercorsoById(int id) {
         return percorsi.stream()
                 .filter(d -> d.getId() == id)
@@ -44,7 +36,7 @@ public class PercorsoService {
 
 
     public List<Lezione> getLezioniFromPercorso(int id) {
-        Percorso percorso = getPercorso(id);
+        Percorso percorso = getPercorsoById(id);
         if (percorso == null) return new ArrayList<>();
 
         List<Lezione> result = new ArrayList<>();

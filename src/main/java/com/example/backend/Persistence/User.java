@@ -15,7 +15,6 @@ public class User {
     private int points;
     private String badge;
     private List<Integer> completedLessons;
-    private List<Integer> completedArticles;
     private List<Integer> bonusReceived;
 
     public User(String username, String password, int avatarId, String ruolo, int points, String badge) {
@@ -27,7 +26,6 @@ public class User {
         this.points = points;
         this.badge = badge;
         this.completedLessons = new ArrayList<>();
-        this.completedArticles = new ArrayList<>();
         this.bonusReceived = new ArrayList<>();
     }
 
@@ -40,9 +38,9 @@ public class User {
     public int getPoints() { return this.points; }
     public String getBadge() { return this.badge; }
     public List<Integer> getCompletedLessons() { return this.completedLessons; }
-    public List<Integer> getCompletedArticles() { return this.completedArticles; }
     public List<Integer> getBonusReceived() { return this.bonusReceived; }
 
     public void setAvatarId(int avatarId) { this.avatarId = avatarId; }
     public void setPoints(int points) { this.points = points; }
+    public void setRuolo(String ruolo) { this.ruolo = ruolo; }
 }
