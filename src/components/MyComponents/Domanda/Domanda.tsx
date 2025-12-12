@@ -1,23 +1,52 @@
 import {type ReactElement, useState} from "react";
-import type {Question} from "../../../model/model.ts";
+import type {AnswerRequest, AnswerResponse, Question} from "../../../model/model.ts";
 import './Domanda.css';
 
 
 interface DomandaProps{
     domanda : Question;
-    onAnswer: (sbagliata : boolean) => void;
+    onAnswer: (risposta : AnswerResponse) => void;
+    onNext: () => void;
 }
 
-function Domanda({domanda, onAnswer}: DomandaProps): ReactElement {
+function Domanda({ domanda, onNext, onAnswer }: DomandaProps): ReactElement {
 
     const [selected, setSelected] = useState<number | null>(null);
-    const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
+    const [loading, setLoading] = useState(false);
+    const [feedback, setFeedback] = useState<{ corretta: boolean; spiegazione: string } | null>(null);
 
-    const checkResult = (index: number) => {
+    const handleAnswer = (index: number) => {
+        if (loading || selected !== null) return;
+
         setSelected(index);
-        setIsCorrect(index === domanda.correctOptionIndex);
-    };
+        setLoading(true);
 
+
+        const request: AnswerRequest = {
+            domandaId: domanda.id,
+            rispostaIndex: index
+        };
+
+        fetch("http://localhost:6767/quiz/risposta", {
+            method: "POST",
+            credentials: "include",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(request)
+        })
+            .then(res => {
+                if (!res.ok) throw new Error("Errore server");
+                return res.json();
+            })
+            .then( (data : AnswerResponse) => {
+                setFeedback({ corretta: data.corretta, spiegazione: data.spiegazione });
+
+                console.log("AnswerResponse: ", data);
+
+                onAnswer(data);
+            })
+            .catch(err => console.error(err))
+            .finally(() => setLoading(false));
+    };
 
     return (
         <div className="domanda-container">
@@ -26,23 +55,19 @@ function Domanda({domanda, onAnswer}: DomandaProps): ReactElement {
 
             <div className="domanda-opzioni">
                 {domanda.options.map((option, index) => {
-
                     let className = "opzione-btn";
 
-                    if (selected !== null) {
-                        if (index === domanda.correctOptionIndex) {
-                            className += " corretta";
-                        } else {
-                            className += " sbagliata";
-                        }
+                    if (feedback) {
+                        if (feedback.corretta && index === selected) className += " corretta";
+                        else if (!feedback.corretta && index === selected) className += " sbagliata";
                     }
 
                     return (
                         <button
                             key={index}
                             className={className}
-                            onClick={() => checkResult(index)}
-                            disabled={selected !== null}
+                            onClick={() => handleAnswer(index)}
+                            disabled={selected !== null || loading}
                         >
                             {option}
                         </button>
@@ -50,21 +75,23 @@ function Domanda({domanda, onAnswer}: DomandaProps): ReactElement {
                 })}
             </div>
 
-            {selected !== null && (
+            {feedback && (
                 <div className="avanti-container">
+                    <p className={`spiegazione ${feedback.corretta ? 'corretta' : 'sbagliata'}`}>
+                        {feedback.spiegazione}
+                    </p>
                     <button
                         className="btn-avanti"
                         onClick={() => {
                             setSelected(null);
-                            setIsCorrect(null);
-                            onAnswer(!isCorrect);
+                            setFeedback(null);
+                            onNext();
                         }}
                     >
                         Avanti →
                     </button>
                 </div>
             )}
-
         </div>
     );
 }

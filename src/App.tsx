@@ -7,6 +7,8 @@ import {UserContext} from './UserContext.ts';
 import type {User} from './model/model.ts';
 import Profilo from "./pages/Profilo/Profilo.tsx";
 import LoginPage from "./pages/LoginPage/LoginPage.tsx";
+import Classifica from "./pages/Classifica/Classifica.tsx";
+import Admin from "./pages/Admin/Admin.tsx";
 
 
 interface SessionData{
@@ -25,7 +27,13 @@ function App() {
 
         fetch("http://localhost:6767/session/login", { credentials:"include"})
             .then(res => res.json())
-            .then((sd : SessionData) => valid ? setCurrentUser(sd.user) : "")
+            .then((sd : SessionData) => {
+                if(valid){
+                    setCurrentUser(sd.user)
+                    console.log("SessionData: ", sd);
+                }
+
+            })
             .catch((err) => console.log(err));
 
         return ()=> {valid = false; }
@@ -36,7 +44,9 @@ function App() {
             case "Home":    return <Home/>;
             case "Quiz":    return <QuizHome/>;
             case "Learn":   return <Learn/>;
-            case "Profilo": return <Profilo/>
+            case "Profilo": return <Profilo/>;
+            case "Classifica": return <Classifica/>
+            case "Admin": return <Admin/>
             case "Login":   return<LoginPage onLogin={(username: string, password : string)=>{
                     return fetch(`http://localhost:6767/session/login?username=${username}&password=${password}`, { credentials : "include" })
                         .then(res => {
@@ -45,7 +55,7 @@ function App() {
                         })
                         .then((sd:SessionData) => {
                             setCurrentUser(sd.user);
-
+                            console.log("SessionData: ", sd);
                             if(sd.user == null) return {ok : false, message:sd.message};
                             else return { ok: true, message: sd.message};
                         })

@@ -26,10 +26,9 @@
 }
 
 .articoli-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    display: flex;
+    flex-wrap: wrap;
     gap: 20px;
-    padding: 20px;
 }
 
 .articolo-card {
@@ -42,18 +41,7 @@
     overflow: hidden;      /* importante: taglia ciò che fuoriesce */
     width: 300px;          /* o la misura desiderata */
     max-height: 200px;     /* limita l'altezza */
-}
-
-
-
-.articolo-preview {
-    flex-grow: 1;           /* fa crescere il contenuto fino allo spazio disponibile */
-    overflow: hidden;       /* taglia il testo in eccesso */
-    text-overflow: ellipsis; /* aggiunge "..." se il testo è troppo lungo */
-    display: -webkit-box;
-    -webkit-line-clamp: 3;  /* numero di righe massime visibili */
-    -webkit-box-orient: vertical;
-    word-break: break-word; /* va a capo nelle parole lunghe */
+    flex: 1 1 250px; /* cresce fino a occupare lo spazio disponibile */
 }
 
 .articolo-card:hover {

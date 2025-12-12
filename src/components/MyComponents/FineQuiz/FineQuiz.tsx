@@ -9,7 +9,6 @@ interface FineQuizProps{
 
 }
 
-
 function FineQuiz({superata, onClose} : FineQuizProps): ReactElement {
 
     return (

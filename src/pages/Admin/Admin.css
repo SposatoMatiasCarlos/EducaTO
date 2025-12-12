@@ -1,0 +1,75 @@
+.admin-container {
+    background-color: #f5f5f5; /* grigino chiaro come articoli-container */
+    border-radius: 12px;
+    padding: 20px;
+    max-width: 1000px;
+    margin: 2rem auto; /* centrato con margine verticale */
+
+}
+
+.admin-container h1 {
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 2rem;
+    color: #333;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.admin-table th,
+.admin-table td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.admin-table th {
+    background-color: #f0f0f0;
+    font-weight: 600;
+}
+
+
+
+.admin-table select {
+    padding: 0.3rem 0.5rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.admin-table select:hover {
+    border-color: #28a745;
+}
+
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.pagination button {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    border: none;
+    background-color: #28a745;
+    color: white;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.pagination button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.pagination span {
+    font-weight: 600;
+}

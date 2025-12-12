@@ -31,7 +31,7 @@ function LearningPath({onSelectedPercorso, percorso, onStartLesson}: LearningPat
         fetch(`http://localhost:6767/percorsi/${percorso.id}/lezioni`, {credentials :"include"} )
             .then(res => res.json())
             .then(data => {
-                console.log(data);
+                console.log("Lezioni: ", data);
                 setLezioni(data);
             })
             .catch(err => console.log(err));

@@ -1,5 +1,5 @@
 
-// Utente che utilizza l'applicazione
+
 export interface User {
     id: number;
     username: string;
@@ -7,11 +7,18 @@ export interface User {
     avatarId: number;
     ruolo: 'studente' | 'admin' | 'mod'
     points: number;
-    badge: "Barbone di dio" | "Investitore medio" | "Esperto Cryptoguru";
+    badge: "Barbone di dio" | "Emerald stuck" | "Challenger";
     completedLessons: number[];
-    completedArticles: number[];
-    bonusReceived: number[]; // array di Percorso.id o id tesori già premiati
+    bonusReceived: number[];
 }
+
+
+export interface UserResponse{
+    users: User[];
+    totalCount: number;
+}
+
+
 
 // ------------------------ Model del quiz -------------------- //
 
@@ -38,14 +45,37 @@ export interface Lesson {
 export interface Question {
     id: number;
     text: string;
-    options: string[];        // risposte possibili
-    explanation?: string;     // spiegazione per la risposta
+    options: string[];
 }
 
-// --------------------------------------------------------- //
+export interface StartResponse {
+    domande: Question[];
+    vite: number;
+    errori: number;
+    message: string;
+}
+
+export interface AnswerRequest{
+    domandaId: number;
+    rispostaIndex: number;
+}
+
+export interface AnswerResponse{
+    corretta: boolean
+    viteRimanenti: number;
+    errori: number;
+    spiegazione : string;
+}
+
+export interface CompleteResponse{
+    superata: boolean;
+    puntiAggiunti: number;
+    message: string;
+    utente: User;
+}
 
 
-// -------------------- Model articoli -------------------- //
+
 
 // Una cartella che contiene articoli
 export interface Cartella {

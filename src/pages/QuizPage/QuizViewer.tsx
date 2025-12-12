@@ -1,11 +1,18 @@
-import type {Lesson, Question, Percorso} from "../../model/model.ts";
+import type {
+    Lesson,
+    Question,
+    Percorso,
+    AnswerResponse,
+    StartResponse,
+    CompleteResponse
+} from "../../model/model.ts";
 import {type ReactElement, useContext, useEffect, useState} from "react";
-import {aggiornaLezioniSuperateUtente, aggiungiPuntiLezioneUtente} from '../../data/data.ts';
 import Domanda from "../../components/MyComponents/Domanda/Domanda.tsx";
 import Vite from "../../components/MyComponents/Vite/Vite.tsx";
 import {ArrowLeft} from "lucide-react";
 import FineQuiz from "../../components/MyComponents/FineQuiz/FineQuiz.tsx";
 import {UserContext} from "../../UserContext.ts";
+import {shuffleArray} from "../../data/data.ts";
 
 interface QuizViewerProps {
     lezione: Lesson;
@@ -16,49 +23,80 @@ interface QuizViewerProps {
 
 function QuizViewer({lezione, percorso, onClose}: QuizViewerProps): ReactElement {
 
-    const {user} = useContext(UserContext);
+    const {setUser} = useContext(UserContext);
+
     const [domande, setDomande] = useState<Question[]>([]);
     const [errori, setErrori] = useState(0);
     const [vite, setVite] = useState(3);
+    const [finito, setFinito] = useState(false);
 
-    const finito = vite <= 0 || domande.length === 0;
+    useEffect(startQuiz, [lezione.id, percorso.id]);
+    useEffect(handleQuizCompletato, [finito]);
 
-    useEffect(fetchDomande, [lezione.id, percorso.id]);
-    useEffect(handleQuizCompletato, [finito, user]);
+    function startQuiz() {
+        let valid = true;
 
-
-    function fetchDomande(){
-        fetch(`http://localhost:6767/percorsi/${percorso.id}/lezioni/${lezione.id}/domande`, {credentials: "include"})
+        fetch(`http://localhost:6767/quiz/start?lezioneId=${lezione.id}`, {
+            method: "POST",
+            credentials: "include"
+        })
             .then(res => {
                 if (res.status === 200) return res.json();
                 else throw Error("Errore fetch domande");
             })
-            .then(data => {
-                setDomande(data);
-                console.log("Domande: ", data);
+            .then((data : StartResponse) => {
+                if(valid){
+                    const domandemescolate = shuffleArray(data.domande);
+                    setDomande(domandemescolate);
+                    console.log("StartResponse: ", data);
+                }
             })
             .catch(err => console.log(err));
+
+        return () => {
+            fetch("http://localhost:6767/quiz/abbandona", {
+                method: "POST",
+                credentials: "include"
+            }).catch(console.log);
+            valid = false;
+            console.log("Hai abbandonato il quiz");
+        };
     }
-    function handleQuizCompletato(){
-        if (finito && errori < 3) {
-            aggiornaLezioniSuperateUtente(user, lezione.id);
-            aggiungiPuntiLezioneUtente(user, lezione.points);
+    function handleQuizCompletato() {
+        if (!finito) return;
+        let valid = true;
+
+        if (finito) {
+            fetch(`http://localhost:6767/quiz/risultato?lezioneId=${lezione.id}`, {
+                method: "POST",
+                credentials: "include"
+            })
+                .then(res => {
+                    if(res.status === 200) return res.json();
+                    else throw new Error("Errore check risultato quiz");
+                })
+                .then((data: CompleteResponse) => {
+                    if(valid){
+                        setUser(data.utente);
+                        console.log("Risultato finale:", data);
+                    }
+                })
+                .catch(err => console.log(err));
+
+        }
+
+        return () => { valid = false; };
+    }
+    function handleAnswer(risposta: AnswerResponse) {
+        setVite(risposta.viteRimanenti);
+        setErrori(risposta.errori);
+
+        if (risposta.viteRimanenti <= 0 || domande.length === 0) {
+            setFinito(true);
         }
     }
-    function handleAnswer(sbagliata: boolean) {
 
-        if (sbagliata) {
-            setErrori(e => e + 1);
-            setVite(v => v - 1);
-        }
-
-        // Rimuovo la domanda corrente (la prima)
-        setDomande(prev => prev.slice(1));
-    }
-
-
-
-    if (finito) return <FineQuiz superata={errori < 3} onClose={onClose} />;
+    if (finito) return <FineQuiz superata={errori < 3} onClose={onClose}/>;
     if (domande.length === 0) return <p>Nessuna domanda disponibile.</p>;
 
 
@@ -80,8 +118,17 @@ function QuizViewer({lezione, percorso, onClose}: QuizViewerProps): ReactElement
 
 
             <div className="row justify-content-center">
-                <Domanda domanda={domande[0]} onAnswer={handleAnswer}/>
+                <Domanda
+                    domanda={domande[0]}
+                    onNext={() => {setDomande(prev => {
+                            const nuove = prev.slice(1);
+                            if (nuove.length === 0) setFinito(true);
+                            return nuove;});}}
+                    onAnswer={handleAnswer}
+                />
             </div>
+
+
         </>
 
     );

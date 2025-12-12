@@ -38,7 +38,12 @@ function EsploraArticoli({setCartellaSelezionata, cartellaaperta}: EsploraArtico
                 }
                 return res.json();
             })
-            .then(data => valid ? setArticoli(data) : "")
+            .then(data => {
+                if(valid){
+                    setArticoli(data);
+                    console.log("Articoli: ", data);
+                }
+            })
             .catch(err => {
                 console.error(err);
             });

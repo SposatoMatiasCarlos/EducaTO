@@ -22,10 +22,14 @@ function Learn(): ReactElement {
                 else throw Error("Errore Fetch Cartelle")
 
             })
-            .then(data => valid ? setCartelle(data) : "")
+            .then(data => {
+                if(valid){
+                    setCartelle(data);
+                    console.log("Cartelle: ", data);
+                }
+            })
             .catch(err => console.log(err));
 
-        console.log(cartelle);
 
         // funzione di cleanup, evita di fare setCartelle quando il componente è unmounted
         return () => {

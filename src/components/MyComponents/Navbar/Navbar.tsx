@@ -33,7 +33,7 @@ function Navbar({setPage, onLogout}: NavbarProps): ReactElement {
         {
             label: 'Quiz',
             ariaLabel: 'Quiz',
-            rotation: 8,
+            rotation: 0,
             hoverStyles: {bgColor: '#10b981', textColor: '#ffffff'},
             onClick: ()=> setPage("Quiz")
         },
@@ -44,7 +44,25 @@ function Navbar({setPage, onLogout}: NavbarProps): ReactElement {
             hoverStyles: {bgColor: '#f59e0b', textColor: '#ffffff'},
             onClick: ()=> setPage("Learn")
         },
+        {
+            label: 'Classifica',
+            ariaLabel: 'Classifica',
+            rotation: 0,
+            hoverStyles: {bgColor: '#c607c6', textColor: '#ffffff'},
+            onClick: ()=> setPage("Classifica")
+        }
     ];
+
+
+    if (user != null && user.ruolo === "admin") {
+        items.push({
+            label: 'Admin',
+            ariaLabel: 'Admin',
+            rotation: 0,
+            hoverStyles: { bgColor: '#de0101', textColor: '#ffffff' },
+            onClick: () => setPage("Admin")
+        });
+    }
 
 
     return (
@@ -67,12 +85,7 @@ function Navbar({setPage, onLogout}: NavbarProps): ReactElement {
                     </div>
                 </div>
 
-
-
             <div className="d-flex align-items-center gap-3 me-3">
-
-
-
                 {user ? (
                     <div className="d-flex align-items-center gap-2">
 
@@ -83,7 +96,6 @@ function Navbar({setPage, onLogout}: NavbarProps): ReactElement {
                         >
                             Logout
                         </button>
-
 
 
 
@@ -102,10 +114,6 @@ function Navbar({setPage, onLogout}: NavbarProps): ReactElement {
                                 />
                             </div>
                         </div>
-
-
-
-
                     </div>
                 ) : (
                     <button

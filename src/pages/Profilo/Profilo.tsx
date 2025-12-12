@@ -32,14 +32,17 @@ function Profilo(): ReactElement {
 
                 throw Error("Errore fetch numero lezioni");
             })
-            .then(dati => valid ? setTotaleLezioni(dati) : "")
+            .then(dati => {
+                if(valid){
+                    console.log("Numero lezioni: ", dati);
+                    setTotaleLezioni(dati);
+                }
+            })
             .catch(err => console.log(err));
 
 
         return () => {valid = false};
     }
-
-
     function cambiaImmagineProfilo(index: number): void {
         if(!user) return;
 
@@ -56,11 +59,13 @@ function Profilo(): ReactElement {
 
                 throw new Error("Errore caricamento avatar utente");
             })
-            .then((data : User) => setUser(data))
+            .then((data : User) => {
+                setUser(data);
+                console.log("Utente Aggiornato: ", data);
+            })
             .catch(err => console.log(err));
 
     }
-
 
     const progressPercent = Math.min((user.completedLessons.length / totaleLezioni) * 100, 100);
 
@@ -82,7 +87,6 @@ function Profilo(): ReactElement {
                     <h2 className="profilo-username">{user.username}</h2>
                     <p className="profilo-ruolo">Ruolo: {user.ruolo}</p>
                     <p className="profilo-badge">Badge: {user.badge}</p>
-                    <p>Articoli letti: {user.completedArticles.length}</p>
                     <p className="profilo-points">Punti: {user.points}</p>
 
                     <div className="profilo-progress-wrapper">
@@ -96,6 +100,8 @@ function Profilo(): ReactElement {
                     </div>
 
                 </div>
+
+
 
 
                 {isOverlayOpen && (

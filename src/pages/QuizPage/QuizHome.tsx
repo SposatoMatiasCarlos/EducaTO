@@ -61,7 +61,7 @@ function QuizHome(): ReactElement {
         fetch("http://localhost:6767/percorsi", {credentials: "include"})
             .then(res => res.json())
             .then(data => {
-                console.log(data);
+                console.log("Percorsi: ",data);
                 setPercorsi(data);
             })
             .catch(err => console.log(err));

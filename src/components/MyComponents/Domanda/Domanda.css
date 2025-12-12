@@ -39,7 +39,9 @@
 
 .avanti-container {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
     margin-top: 2rem;
 }
 
@@ -71,4 +73,28 @@
 .opzione-btn.corretta {
     background-color: #4CAF50 !important;
     color: white;
+}
+
+
+.spiegazione {
+    font-size: 1.2rem;
+    color: #555; /* colore neutro, leggibile */
+    background-color: #f9f9f9; /* leggero sfondo per evidenziare */
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    max-width: 600px;
+    margin: 1rem auto 0 auto; /* centrata con margine superiore */
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* leggero effetto 3D */
+    transition: background-color 0.2s ease;
+}
+
+.spiegazione.corretta {
+    background-color: #d4edda; /* verde chiaro per corretto */
+    color: #155724;
+}
+
+.spiegazione.sbagliata {
+    background-color: #f8d7da; /* rosso chiaro per sbagliato */
+    color: #721c24;
 }

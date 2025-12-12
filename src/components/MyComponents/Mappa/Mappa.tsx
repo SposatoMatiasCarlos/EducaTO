@@ -4,7 +4,7 @@ import './Mappa.css';
 import icon2 from '../../../assets/icon2.png';
 import icon3 from '../../../assets/icon3.png';
 import Confetti from "react-confetti";
-import {isUnlocked, hasCompletedLessons, aggiungiPuntiLezioneUtente} from '../../../data/data.ts';
+import {isUnlocked, hasCompletedLessons} from '../../../data/data.ts';
 import {UserContext} from '../../../UserContext.ts';
 
 interface MappaProps {
@@ -16,34 +16,37 @@ interface MappaProps {
 
 function Mappa({lezioni, percorso, setLezioneSelezionata}: MappaProps): ReactElement {
 
-    const {user} = useContext(UserContext);
+    const {user, setUser} = useContext(UserContext);
 
     const [showPopup, setShowPopup] = useState(false);
     const [showCoriandoli, setCoriandoli] = useState(false);
 
-
     if(user == null) return <></>
-
-
 
 
     const assegnaPuntiBonus = () => {
         const completate: number = hasCompletedLessons(percorso.id, lezioni, user);
 
-        // Ha completato per la prima volta la lezione, il check dovrebbe farlo il server
+
         if (completate === 1) {
 
-            setCoriandoli(true);
-
-            // tutte completate e bonus non ancora dato quindi assegna punti
-            aggiungiPuntiLezioneUtente(user, 50);
-
-            // segna che il bonus è stato assegnato
-            user.bonusReceived.push(percorso.id);
-
-            setShowPopup(false);
+            fetch(`http://localhost:6767/quiz/bonus?idPercorso=${percorso.id}`,
+                {
+                    method: "POST",
+                    credentials: "include"
+                })
+                .then(res => {
+                    if (res.status === 200) {
+                        return res.json();
+                    } else throw new Error("Errore fetch Bonus");
+                })
+                .then(data => {
+                    setCoriandoli(true);
+                    setUser(data);
+                    console.log("Utente aggiornato: ", data);
+                    setShowPopup(false);
+                })
         } else if (completate === -1) {
-            // non tutte completate → mostra popup
             setShowPopup(true);
             setTimeout(() => setShowPopup(false), 3000);
         }

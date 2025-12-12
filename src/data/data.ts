@@ -1,5 +1,4 @@
-import type {Question, User, Lesson, Percorso, Cartella} from '../model/model.ts';
-
+import type {User, Lesson, Percorso} from '../model/model.ts';
 
 
 // ----------------------- Utenti --------------------- //
@@ -11,25 +10,6 @@ export function isPercorsoCompletato(utente : User, percorso : Percorso) {
         utente.completedLessons.includes(idLezione)
     );
 }
-
-
-
-export function aggiornaLezioniSuperateUtente(utente: User, lessonId: number): void {
-    if (!utente.completedLessons.includes(lessonId)) {
-        utente.completedLessons.push(lessonId);
-    }
-}
-
-export function aggiungiPuntiLezioneUtente(utente: User, punti: number): void {
-    utente.points += punti;
-}
-
-export function impostaNuovoAvatarUtente(utente : User, newindex: number) : void{
-    utente.avatarId = newindex;
-}
-
-
-
 
 export function isUnlocked(lezione: Lesson, utente: User): boolean {
     if (!lezione.prerequisites || lezione.prerequisites.length === 0) return true;
@@ -45,11 +25,14 @@ export function hasCompletedLessons(percorsoId: number, lezioni: Lesson[], utent
     else return 0;
 }
 
-
-
-
-
-// ---------------- Cartelle e articoli ------------------------ //
+export function shuffleArray<T>(array: T[]): T[] {
+    const copy = [...array]; // non modificare l'array originale
+    for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]]; // swap
+    }
+    return copy;
+}
 
 
 
