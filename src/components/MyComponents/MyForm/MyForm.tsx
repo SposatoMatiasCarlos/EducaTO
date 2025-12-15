@@ -1,14 +1,11 @@
 import {type ReactElement, useState} from "react";
 import './MyForm.css';
 
-
-
 interface MyFormProps{
     tipo : string;
     onConfirm: (titolo : string)=> void;
     onClose: () => void;
 }
-
 
 function MyForm({tipo, onConfirm, onClose} : MyFormProps) : ReactElement {
 
@@ -25,12 +22,9 @@ function MyForm({tipo, onConfirm, onClose} : MyFormProps) : ReactElement {
 
                 <form
                     className="form-group"
-                    onSubmit={(e) => {
-                        e.preventDefault(); // evita il refresh
-                        onConfirm(titolo);
-                    }}
+                    onSubmit={ () => onConfirm(titolo)}
                 >
-                    <label htmlFor="titolo">Nome</label>
+                    <label>Nome</label>
                     <input
                         id="titolo"
                         type="text"
@@ -41,17 +35,12 @@ function MyForm({tipo, onConfirm, onClose} : MyFormProps) : ReactElement {
                                 ? "Inserisci il nome della cartella..."
                                 : "Inserisci il nome del percorso..."
                         }
+                        required
                     />
 
-
-
                     <div className="button-row">
-                        <button type="button" onClick={() => onConfirm(titolo)} className="btn btn-success">
-                            Crea
-                        </button>
-                        <button type="button" className="btn btn-danger" onClick={onClose}>
-                            Chiudi
-                        </button>
+                        <div onClick={() => onConfirm(titolo)} className="btn btn-success">Crea</div>
+                        <div className="btn btn-danger" onClick={onClose}>Chiudi</div>
                     </div>
                 </form>
             </div>

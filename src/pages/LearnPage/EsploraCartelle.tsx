@@ -33,7 +33,7 @@ function EsploraCartelle({cartelle, setCartelle, setCartellaSelezionata}: Esplor
                 const nuovaLista: Cartella[] = [...cartelle, data];
                 setCartelle( nuovaLista);
             })
-            .catch(err => console.error(err));
+            .catch(err => console.log(err));
     }
 
     return (

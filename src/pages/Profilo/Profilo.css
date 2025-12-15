@@ -51,14 +51,14 @@
 }
 
 
-/* Avatar */
-.profilo-avatar {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
+.avatar-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
-    border: 3px solid rgba(255,255,255,0.5);
-    margin-bottom: 20px;
+    border-radius: 50%;
+    display: block;
 }
 
 /* Username e ruolo */
@@ -113,7 +113,7 @@
     border-radius: 50%;
     overflow: hidden;
     transition: transform 0.2s ease;
-    margin: 0 auto 20px; /* <-- centra e aggiunge spazio sotto */
+    margin: 0 auto 20px;
 }
 
 .avatar-hover-overlay {
@@ -169,6 +169,8 @@
     justify-content: center;
     margin: 20px 0;
 }
+
+
 
 .option-avatar {
     width: 80px;

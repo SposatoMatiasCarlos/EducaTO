@@ -7,6 +7,7 @@ import Articolo from "../../components/MyComponents/Articolo/Articolo.tsx";
 import AddContentButton from "../../components/MyComponents/AddContentButton/AddContentButton.tsx";
 import EditorArticolo from '../../components/ThirdPartyComponents/EditorArticolo/EditorArticolo.tsx';
 import {UserContext} from '../../UserContext.ts';
+import notfound from "../../assets/notfound.mp4";
 
 
 interface EsploraArticoliProps {
@@ -142,7 +143,23 @@ function EsploraArticoli({setCartellaSelezionata, cartellaaperta}: EsploraArtico
                             ))}
                         </div>
 
-                        {articoliFiltrati.length === 0 && <h4>Non ci sono articoli da visualizzare.</h4>}
+                        {articoliFiltrati.length === 0 && (
+                            <div style={{ textAlign: 'center' }}>
+                                <video
+                                    src={notfound}
+                                    autoPlay
+                                    loop
+                                    muted
+                                    style={{
+                                        width: '300px',
+                                        maxWidth: '80vw',
+                                        height: 'auto',
+                                        borderRadius: '8px',
+                                    }}
+                                />
+                                <h4>Non ci sono articoli da visualizzare.</h4>
+                            </div>
+                        )}
 
                         <AddContentButton onPress={() => setScriviArticolo(true)} />
                     </div>

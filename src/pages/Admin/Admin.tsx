@@ -15,13 +15,13 @@ function Admin() : ReactElement {
     const [pagina, setPagina] = useState(1);
     const [numeropagine, setNumeroPagine] = useState(1);
 
+
     useEffect(fetchUtenti, [pagina]);
     function fetchUtenti(){
 
         let valid = true;
 
-        //http://localhost:6767/utenti?pagina=${pagina}&limite=${PAGE_SIZE}
-        fetch(`http://localhost:6767/utenti`, {credentials:"include"})
+        fetch(`http://localhost:6767/utenti?pagina=${pagina}&limite=${PAGE_SIZE}`, {credentials:"include"})
             .then(res => {
                 if(res.status === 200) return res.json();
                 else throw Error("Errore fetch classifica");
@@ -38,8 +38,6 @@ function Admin() : ReactElement {
 
         return () => { valid = false; };
     }
-
-
     function cambiaRuolo(username : string, nuovoruolo : string){
 
         fetch(`http://localhost:6767/utenti/ruolo`, {
@@ -60,10 +58,7 @@ function Admin() : ReactElement {
     }
 
 
-
     if(user == null || utenti.length === 0) return <></>;
-
-
     return (
         <div className="admin-container">
             <h1>Gestione Utenti</h1>
@@ -89,6 +84,7 @@ function Admin() : ReactElement {
                             >
                                 <option value="studente">Studente</option>
                                 <option value="admin">Admin</option>
+                                <option value="mod">Moderatore</option>
                             </select>
                         </td>
                     </tr>

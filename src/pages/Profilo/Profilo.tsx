@@ -75,7 +75,7 @@ function Profilo(): ReactElement {
                 <div className="profilo-card">
                     <div className="avatar-wrapper" onClick={() => setIsOverlayOpen(true)}>
                         <img
-                            className="profilo-avatar"
+                            className="avatar-img"
                             src={avatarOptions[user.avatarId]}
                             alt={`${user.username} avatar`}
                         />

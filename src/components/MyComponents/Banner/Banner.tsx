@@ -13,11 +13,11 @@ function Banner({percorso, lezioni} : BannerProprs): ReactElement{
 
     const {user} = useContext(UserContext);
 
-    const completed = user?.completedLessons.filter(id =>
+    const completed: number = user?.completedLessons.filter(id =>
         percorso.lessons.includes(id)
     ).length ?? 0;
 
-    const progress = completed / lezioni.length;
+    const progress = lezioni.length > 0 ? completed / lezioni.length : 0;
 
     return (
         <div className="percorso-banner">

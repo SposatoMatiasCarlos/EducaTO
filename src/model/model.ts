@@ -1,5 +1,3 @@
-
-
 export interface User {
     id: number;
     username: string;
@@ -12,17 +10,12 @@ export interface User {
     bonusReceived: number[];
 }
 
-
 export interface UserResponse{
     users: User[];
     totalCount: number;
 }
 
 
-
-// ------------------------ Model del quiz -------------------- //
-
-// Insieme di lezioni
 export interface Percorso {
     id: number;
     title: string;
@@ -30,7 +23,6 @@ export interface Percorso {
 }
 
 
-// Insieme di domande
 export interface Lesson {
     id: number;
     title: string;
@@ -41,12 +33,19 @@ export interface Lesson {
     prerequisites?: number[];
 }
 
-
 export interface Question {
     id: number;
     text: string;
     options: string[];
+    correctOptionIndex: number;
+    explanation : string;
 }
+
+export interface CreateLessonRequest{
+    lezione: Lesson,
+    domande: Question[];
+}
+
 
 export interface StartResponse {
     domande: Question[];
@@ -73,6 +72,7 @@ export interface CompleteResponse{
     message: string;
     utente: User;
 }
+
 
 
 

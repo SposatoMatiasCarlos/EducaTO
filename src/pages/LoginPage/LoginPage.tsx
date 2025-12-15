@@ -59,6 +59,7 @@ function LoginPage({onLogin, setPage}: LoginPageProps): ReactElement {
                             id="username"
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
+                            required
                         />
                     </div>
                     <div className="form-group">
@@ -68,6 +69,7 @@ function LoginPage({onLogin, setPage}: LoginPageProps): ReactElement {
                             id="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
+                            required
                         />
                     </div>
 

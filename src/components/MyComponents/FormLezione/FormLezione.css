@@ -1,0 +1,49 @@
+.nuova-lezione-card {
+    max-width: 700px;
+    margin: 20px auto;
+    padding: 30px;
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.nuova-lezione-card h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.nuova-lezione-form label {
+    display: block;
+    margin-bottom: 15px;
+    font-weight: 500;
+}
+
+.nuova-lezione-form input,
+.nuova-lezione-form textarea,
+.nuova-lezione-form select {
+    width: 100%;
+    padding: 8px 10px;
+    margin-top: 5px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+.question-block {
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+}
+
+.options-container {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-top: 5px;
+}
+
+.options-container input {
+    width: 100%;
+}
+

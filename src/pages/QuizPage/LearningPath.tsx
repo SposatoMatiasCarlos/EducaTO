@@ -7,14 +7,12 @@ import Banner from "../../components/MyComponents/Banner/Banner.tsx";
 import Mappa from "../../components/MyComponents/Mappa/Mappa.tsx";
 import {Button, Modal} from "react-bootstrap";
 import AddContentButton from "../../components/MyComponents/AddContentButton/AddContentButton.tsx";
-import MyForm from "../../components/MyComponents/MyForm/MyForm.tsx";
-
-
+import FormLezione from "../../components/MyComponents/FormLezione/FormLezione.tsx";
 
 
 interface LearningPathProps {
     onSelectedPercorso: (percorso: Percorso | null) => void;
-    onStartLesson: (lezione : Lesson | null) => void;
+    onStartLesson: (lezione: Lesson | null) => void;
     percorso: Percorso;
 }
 
@@ -23,46 +21,57 @@ function LearningPath({onSelectedPercorso, percorso, onStartLesson}: LearningPat
 
     const [lezioni, setLezioni] = useState<Lesson[]>([]);
     const [lezioneSelezionata, setLezioneSelezionata] = useState<Lesson | null>(null);
-    const [showOverlay, setShowOverlay] = useState<boolean>(false);
+    const [creaLezione, setCreaLezione] = useState<boolean>(false);
 
+    function fetchLezioni() {
 
-    function fetchLezioni(){
-
-        fetch(`http://localhost:6767/percorsi/${percorso.id}/lezioni`, {credentials :"include"} )
-            .then(res => res.json())
+        fetch(`http://localhost:6767/percorsi/${percorso.id}/lezioni`, {credentials: "include"})
+            .then(res => {
+                if(res.status === 200) return res.json();
+                else throw Error("Errore fetch lezioni");
+            })
             .then(data => {
                 console.log("Lezioni: ", data);
                 setLezioni(data);
             })
             .catch(err => console.log(err));
-
     }
-
-
-    useEffect(fetchLezioni , [percorso.id]);
-
-
-    if(lezioni.length == 0) {return <h4>Non ci sono lezioni da visualizzare</h4>; }
+    useEffect(fetchLezioni, [percorso.id]);
 
     return (
         <>
+            {creaLezione ? (
+                <FormLezione
+                    onLessonCreated={(lesson) => {
+                        setLezioni(prev => [...prev, lesson]);
+                        setCreaLezione(false);
+                    }}
+                    idPercorso={percorso.id}
+                />
+            ) : (
+                <>
+                    <div className="row">
+                        <div className="col-4">
+                            <button className="btn m-5" onClick={() => onSelectedPercorso(null)}>
+                                <ArrowLeft size={50}/>
+                            </button>
+                        </div>
 
-            <div className="row">
+                        <div className="col-4 justify-content-center">
+                            <Banner percorso={percorso} lezioni={lezioni}/>
+                        </div>
+                    </div>
 
-                <div className="col-4">
-                    <button className="btn m-5" onClick={() => onSelectedPercorso(null)}>
-                        <ArrowLeft size={50}/>
-                    </button>
-                </div>
+                    {lezioni.length > 0 && (
+                        <Mappa
+                            percorso={percorso}
+                            lezioni={lezioni}
+                            setLezioneSelezionata={setLezioneSelezionata}
+                        />
+                    )}
+                </>
+            )}
 
-
-                <div className="col-4 justify-content-center">
-                    <Banner percorso={percorso} lezioni={lezioni}/>
-                </div>
-            </div>
-
-
-            <Mappa percorso={percorso} lezioni={lezioni} setLezioneSelezionata={setLezioneSelezionata}/>
 
 
             <Modal
@@ -87,17 +96,10 @@ function LearningPath({onSelectedPercorso, percorso, onStartLesson}: LearningPat
                 </Modal.Footer>
             </Modal>
 
-            <AddContentButton onPress={() => setShowOverlay(true)}/>
-
-
-            {showOverlay ?
-                <MyForm
-                    tipo={"lezione"}
-                    onConfirm={()=>{}}
-                    onClose={()=> setShowOverlay(false)}
-                /> : <></>}
+            <AddContentButton onPress={() => setCreaLezione(true)}/>
         </>
     );
+
 }
 
 export default LearningPath;

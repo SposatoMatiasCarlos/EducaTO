@@ -10,7 +10,6 @@ import {isPercorsoCompletato} from "../../data/data.ts";
 import {UserContext} from '../../UserContext.ts';
 
 
-
 function QuizHome(): ReactElement {
 
     const [percorsi, setPercorsi] = useState<Percorso[]>([]);

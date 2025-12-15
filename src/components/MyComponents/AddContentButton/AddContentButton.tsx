@@ -11,7 +11,6 @@ function AddContentButton({onPress} : ContentButtonProps) : ReactElement{
     const {user} = useContext(UserContext);
     if (!user) return <></>;
 
-
     return(
         <>
             { (user.ruolo === "admin" || user.ruolo === "mod") && (
