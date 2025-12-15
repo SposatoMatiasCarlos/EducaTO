@@ -78,4 +78,32 @@ public class DomandaService {
                 .findFirst()
                 .orElse(null);
     }
+
+    public List<Domanda> creaDomande(List<Domanda> nuoveDomande) {
+        if (nuoveDomande == null || nuoveDomande.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        List<Domanda> create = new ArrayList<>();
+
+        for (Domanda d : nuoveDomande) {
+
+            // Se una domanda non è valida salta alla successiva
+            if (d.getText() == null || d.getText().isBlank() || d.getOptions() == null || d.getOptions().isEmpty()) {
+                continue;
+            }
+
+
+            Domanda nuova = new Domanda(
+                    d.getText(),
+                    new ArrayList<>(d.getOptions()),
+                    d.getCorrectOptionIndex(),
+                    d.getExplanation()
+            );
+            domande.add(nuova);
+            create.add(nuova);
+        }
+
+        return create;
+    }
 }

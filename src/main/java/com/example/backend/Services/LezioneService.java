@@ -3,6 +3,7 @@ package com.example.backend.Services;
 
 import com.example.backend.Persistence.Domanda;
 import com.example.backend.Persistence.Lezione;
+import com.example.backend.Persistence.Percorso;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -49,6 +50,34 @@ public class LezioneService {
                 .filter(d -> d.getId() == id)
                 .findFirst()
                 .orElse(null);
+    }
+
+
+
+    public Lezione creaLezione( List<Integer> prerequisiti, Lezione nuovaLezione, List<Domanda> domandeCreate) {
+        if (nuovaLezione == null
+                || nuovaLezione.getTitle() == null || nuovaLezione.getTitle().isBlank()
+                || nuovaLezione.getDescription() == null || nuovaLezione.getDescription().isBlank()
+                || nuovaLezione.getPoints() <= 0
+                || nuovaLezione.getDifficulty() == null || nuovaLezione.getDifficulty().isBlank()
+                || domandeCreate == null || domandeCreate.isEmpty()) {
+            return null;
+        }
+
+
+
+        Lezione lezione = new Lezione(
+                nuovaLezione.getTitle(),
+                nuovaLezione.getDescription(),
+                nuovaLezione.getPoints(),
+                nuovaLezione.getDifficulty(),
+                domandeCreate.stream().map(Domanda::getId).toList(),
+                prerequisiti
+        );
+
+        lezioni.add(lezione);
+
+        return lezione;
     }
 
 }

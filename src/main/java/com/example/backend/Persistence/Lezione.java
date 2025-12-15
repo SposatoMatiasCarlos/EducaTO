@@ -23,10 +23,9 @@ public class Lezione {
         this.description = descrizione;
         this.points = points;
         this.difficulty = difficulty;
-        this.questionIds = new ArrayList<>(questionid);
-        this.prerequisites = new ArrayList<>(prerequisites);
+        this.questionIds = questionid != null ? questionid : new ArrayList<>();
+        this.prerequisites = prerequisites != null ? prerequisites : new ArrayList<>();
     }
-
 
 
     public int  getId() { return this.id; }

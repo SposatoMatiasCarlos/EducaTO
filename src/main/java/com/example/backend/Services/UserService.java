@@ -5,6 +5,7 @@ import com.example.backend.Persistence.User;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -158,5 +159,14 @@ public class UserService {
         user.setRuolo(nuovoRuolo);
         return true;
     }
+
+
+    public List<User> getTopUsers(int topN) {
+        return users.stream()
+                .sorted(Comparator.comparingInt(User::getPoints).reversed())
+                .limit(topN)
+                .toList();
+    }
+
 
 }

@@ -229,6 +229,7 @@ public class QuizController {
     }
 
 
+
     @PostMapping("/abbandona")
     public ResponseEntity<Void> abbandona(HttpSession session) {
         if(session.getAttribute("user") == null) return ResponseEntity.badRequest().build();
@@ -236,7 +237,6 @@ public class QuizController {
         cleanup(session);
         return ResponseEntity.ok().build();
     }
-
 
 
 

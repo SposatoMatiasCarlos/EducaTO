@@ -21,15 +21,10 @@ public class Domanda {
         this.id = idcounter++;
     }
 
-    public Domanda(String text, List<String> options, int correctOptionIndex) {
-        this.text = text;
-        this.options = options;
-        this.correctOptionIndex = correctOptionIndex;
-        this.id = idcounter++;
-    }
-
 
     public int getId() { return this.id; }
+    public void setId() { this.id = idcounter++; }
+
     public String getText() { return this.text; }
     public List<String> getOptions() { return this.options; }
     public int getCorrectOptionIndex() { return this.correctOptionIndex; }

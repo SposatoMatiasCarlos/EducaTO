@@ -47,9 +47,38 @@ public class UserController {
 
 
     @GetMapping("")
-    public ResponseEntity<UserResponse> getAllUsers() {
-        List<User> users = userService.getUsers();
-        return ResponseEntity.ok(new UserResponse(users, users.size()));
+    public ResponseEntity<UserResponse> getAllUsers(@RequestParam (required = false) Integer pagina,
+                                                    @RequestParam (required = false) Integer limite,
+                                                    HttpSession session) {
+
+        User user = (User) session.getAttribute("user");
+
+        if (user == null || !"admin".equals(user.getRuolo())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+
+        List<User> tutti = userService.getUsers();
+        int totalCount = tutti.size();
+
+        if (pagina == null || limite == null) {
+            return ResponseEntity.ok(new UserResponse(tutti, totalCount));
+        }
+
+        int page = pagina < 1 ? 1 : pagina;
+        int limit = limite < 1 ? totalCount : limite;
+
+        int start = (page - 1) * limit;
+        int end = Math.min(start + limit, totalCount);
+
+        if (start >= totalCount) {
+            return ResponseEntity.ok(new UserResponse(List.of(), totalCount));
+        }
+
+        List<User> paginaUtenti = tutti.subList(start, end);
+
+        return ResponseEntity.ok(new UserResponse(paginaUtenti, totalCount));
+
     }
 
 
@@ -68,8 +97,8 @@ public class UserController {
 
     @GetMapping("/classifica")
     public ResponseEntity<List<User>> getClassificaUsers() {
-        List<User> users = userService.getUsers();
-        return ResponseEntity.ok(users);
+        List<User> top10 = userService.getTopUsers(10);
+        return ResponseEntity.ok(top10);
     }
 
 

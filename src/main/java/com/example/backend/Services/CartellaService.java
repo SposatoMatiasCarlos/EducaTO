@@ -69,10 +69,9 @@ public class CartellaService {
     public Cartella addNewCartella(Cartella cartella) {
 
         boolean exists = cartelle.stream().anyMatch(c -> c.getNome().equalsIgnoreCase(cartella.getNome().trim()));
+        if (exists) { return null; }
 
-        if (exists) {
-            return null;
-        }
+        if(cartella.getNome().trim().equals("")) return null;
 
         cartella.setArticoli(new ArrayList<>());
         cartella.setId();
