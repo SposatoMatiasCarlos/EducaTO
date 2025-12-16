@@ -1,24 +1,59 @@
 package com.example.backend.Persistence;
 
+import jakarta.persistence.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
+
+@Entity
+@Table(name="users")
 public class User {
 
-    static int idcounter;
 
+    @Id
+    @GeneratedValue(strategy= GenerationType.AUTO)
     private int id;
+
+    @Column(name="username", unique = true, nullable = false)
     private String username;
+
+    @Column(name="password", nullable = false)
     private String password;
+
+    @Column(name="avatarId", nullable = false)
     private int avatarId;
+
+    @Column(name="ruolo", nullable = false)
     private String ruolo;
+
+    @Column(name="points", nullable = false)
     private int points;
+
+    @Column(name="badge", nullable = false)
     private String badge;
-    private List<Integer> completedLessons;
-    private List<Integer> bonusReceived;
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_completed_lessons",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "lesson_id")
+    )
+    private List<Lezione> completedLessons;
+
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_percorsi_completati",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "percorso_id")
+    )
+    private List<Percorso> bonusReceived;
+
+
+    public User() {}
 
     public User(String username, String password, int avatarId, String ruolo, int points, String badge) {
-        this.id = idcounter++;
         this.username = username;
         this.password = password;
         this.avatarId = avatarId;
@@ -37,8 +72,8 @@ public class User {
     public String getRuolo() { return this.ruolo; }
     public int getPoints() { return this.points; }
     public String getBadge() { return this.badge; }
-    public List<Integer> getCompletedLessons() { return this.completedLessons; }
-    public List<Integer> getBonusReceived() { return this.bonusReceived; }
+    public List<Lezione> getCompletedLessons() { return this.completedLessons; }
+    public List<Percorso> getBonusReceived() { return this.bonusReceived; }
 
     public void setAvatarId(int avatarId) { this.avatarId = avatarId; }
     public void setPoints(int points) { this.points = points; }

@@ -1,7 +1,9 @@
 package com.example.backend.Services;
 
-import com.example.backend.Persistence.Lezione;
-import com.example.backend.Persistence.User;
+import com.example.backend.Persistence.*;
+import jakarta.annotation.PostConstruct;
+import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -12,21 +14,27 @@ import java.util.Optional;
 @Service
 public class UserService {
 
-    List<User> users;
+    private final UserRepo userRepository;
+    private final LezioneRepo lezioneRepository;
+    private final PercorsoRepo percorsoRepository;
 
-    public UserService() {
-        users = new ArrayList<>();
+    public UserService(UserRepo userRepository, LezioneRepo lezioneRepository, PercorsoRepo percorsoRepository) {
+        this.userRepository = userRepository;
+        this.percorsoRepository = percorsoRepository;
+        this.lezioneRepository = lezioneRepository;
+    }
 
-        users.add(new User(
+    @PostConstruct
+    void init() {
+        userRepository.save(new User(
                 "mati",
                 "temp",
                 0,
                 "studente",
                 0,
-                "Barbone di dio"
-        ));
+                "Barbone di dio"));
 
-        users.add(new User(
+        userRepository.save(new User(
                 "hudson",
                 "temp",
                 1,
@@ -36,134 +44,133 @@ public class UserService {
         ));
     }
 
+    public List<User> getUsers(Integer pagina, Integer limite) {
+        List<User> tuttiUtenti = userRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));
 
-    public List<User> getUsers() {
-        return users;
+        int totalCount = tuttiUtenti.size();
+        int page = (pagina == null || pagina < 1) ? 1 : pagina;
+        int limit = (limite == null || limite < 1) ? totalCount : limite;
+
+        int start = (page - 1) * limit;
+        int end = Math.min(start + limit, totalCount);
+
+        if (start >= totalCount) {
+            return List.of(); // nessun utente nella pagina richiesta
+        }
+
+        return tuttiUtenti.subList(start, end);
     }
 
 
     public Optional<User> login(String username, String password) {
-        return users.stream()
-                .filter(u -> u.getUsername().equals(username) && u.getPassword().equals(password))
-                .findFirst();
+        return userRepository.findByUsernameAndPassword(username, password);
+    }
+
+    public Optional<User> getUserByUsername(String username) {
+        return userRepository.findUserByUsername(username);
+    }
+
+    @Transactional
+    public User cambiaAvatarUtente(int userId, int index) {
+        if (index < 0 || index > 3) {
+            return null;
+        }
+
+        Optional<User> utenteOpt = userRepository.findById(userId);
+        if(utenteOpt.isEmpty()) return null;
+
+        User utente = utenteOpt.get();
+        utente.setAvatarId(index);
+
+        return utente; // ritorna l'entità aggiornata
     }
 
 
+    public boolean haCompletatoLezione(int userId, int lezioneId) {
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (optionalUser.isEmpty()) return false;
 
-    public boolean cambiaAvatarUtente(User user, int index){
-        // Controllo validità index
-        if(index < 0 || index > 3){
-            return false;
-        }
+        User realUser = optionalUser.get();
+        return realUser.getCompletedLessons().stream()
+                .anyMatch(l -> l.getId() == lezioneId);
+    }
 
-        Optional<User> optionalUser = users.stream()
-                .filter(u -> u.getUsername().equals(user.getUsername()))
-                .findFirst();
 
-        if(optionalUser.isEmpty()) return false;
+    @Transactional
+    public boolean aggiungiLezioneCompletata(int userId, int lezioneId) {
 
-        // Aggiorna l’avatar
-        optionalUser.get().setAvatarId(index);
+        User user = userRepository.findById(userId).orElse(null);
+        Lezione lezione = lezioneRepository.findById(lezioneId).orElse(null);
+        if(user == null || lezione == null) return false;
 
-        // Se usi sessione, aggiorna anche l’oggetto in sessione
-        user.setAvatarId(index);
+        boolean completata = user.getCompletedLessons()
+                .stream()
+                .anyMatch(l -> l.getId() == lezioneId);
+
+        if (completata) return false;
+
+        user.getCompletedLessons().add(lezione);
+        user.setPoints(user.getPoints() + lezione.getPoints());
+        userRepository.save(user);
 
         return true;
     }
 
 
-    public boolean haCompletatoLezione(User user, int lezioneId) {
-        Optional<User> optionalUser = users.stream()
-                .filter(u -> u.getUsername().equals(user.getUsername()))
-                .findFirst();
+    @Transactional
+    public User aggiungiBonus(int userId, int percorsoId) {
 
-        if (optionalUser.isEmpty()) return false;
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) return null;
 
-        User realUser = optionalUser.get();
-        return realUser.getCompletedLessons().contains(lezioneId);
-    }
+        Percorso percorso = percorsoRepository.findById(percorsoId).orElse(null);
+        if (percorso == null) return null;
 
-
-    public boolean aggiungiLezioneCompletata(User user, int lezioneId) {
-        Optional<User> optionalUser = users.stream()
-                .filter(u -> u.getUsername().equals(user.getUsername()))
-                .findFirst();
-
-        if (optionalUser.isEmpty()) return false;
-
-        User realUser = optionalUser.get();
-
-
-        if (!haCompletatoLezione(realUser, lezioneId)) {
-            realUser.getCompletedLessons().add(lezioneId);
-            return true;
-        }
-
-        return false;
-    }
-
-
-    public boolean aggiungiPunti(User user, int punti) {
-        Optional<User> optionalUser = users.stream()
-                .filter(u -> u.getUsername().equals(user.getUsername()))
-                .findFirst();
-
-        if (optionalUser.isEmpty()) return false;
-
-        User realUser = optionalUser.get();
-
-        realUser.setPoints(realUser.getPoints() + punti);
-
-        return true;
-    }
-
-
-
-
-    public boolean aggiungiBonus(User user, int idPercorso, List<Integer> lezioniPercorso) {
-
-        // Controlla se l'utente ha già ricevuto il bonus
-        if (user.getBonusReceived().contains(idPercorso)) { return false; }
-
+        // Controlla se l’utente ha già ricevuto il bonus
+        if (user.getBonusReceived().contains(percorso)) return null;
 
         // Controlla che tutte le lezioni del percorso siano completate
-        if (!user.getCompletedLessons().containsAll(lezioniPercorso)) { return false; }
+        if (!user.getCompletedLessons().containsAll(percorso.getLessons())) return null;
 
-        // Assegna il bonus
+        // Assegna bonus
         int puntiBonus = 50;
         user.setPoints(user.getPoints() + puntiBonus);
 
         // Segna il percorso come bonus già ricevuto
-        user.getBonusReceived().add(idPercorso);
-
-        return true; // bonus assegnato
+        user.getBonusReceived().add(percorso);
+        return user;
     }
 
 
-    public User getUserByUsername(String username) {
-        return users.stream()
-                .filter(u -> u.getUsername().equals(username))
-                .findFirst()
-                .orElse(null);
+    public Optional<User> getUserById(int id) {
+        return userRepository.findById(id);
     }
 
 
+    @Transactional
     public boolean cambiaRuolo(User user, String nuovoRuolo) {
-        if(user == null) return false;
+
+        if (user == null) return false;
+
+        Optional<User> optionalUser = userRepository.findById(user.getId());
+        if (optionalUser.isEmpty()) return false;
+
+        User realUser = optionalUser.get();
 
         // Verifica validità ruolo
-        if(!nuovoRuolo.equals("studente") && !nuovoRuolo.equals("admin") && !nuovoRuolo.equals("mod")) {
+        if (!nuovoRuolo.equals("studente") && !nuovoRuolo.equals("admin") && !nuovoRuolo.equals("mod")) {
             return false;
         }
 
-        user.setRuolo(nuovoRuolo);
+        // Aggiorna ruolo
+        realUser.setRuolo(nuovoRuolo);
         return true;
     }
 
 
     public List<User> getTopUsers(int topN) {
-        return users.stream()
-                .sorted(Comparator.comparingInt(User::getPoints).reversed())
+        List<User> allUsersSorted = userRepository.findAllByOrderByPointsDesc();
+        return allUsersSorted.stream()
                 .limit(topN)
                 .toList();
     }

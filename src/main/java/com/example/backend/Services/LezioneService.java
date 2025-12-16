@@ -1,83 +1,112 @@
 package com.example.backend.Services;
 
 
-import com.example.backend.Persistence.Domanda;
-import com.example.backend.Persistence.Lezione;
-import com.example.backend.Persistence.Percorso;
+import com.example.backend.Dto.CreateLezioneRequest;
+import com.example.backend.Persistence.*;
+import jakarta.annotation.PostConstruct;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class LezioneService {
 
-    List<Lezione> lezioni;
+    private final LezioneRepo lezioneRepository;
+    private final PercorsoRepo percorsoRepository;
+    private final DomandaService domandaService;
 
-    public LezioneService() {
-        lezioni = new ArrayList<>();
-
-        lezioni.add(new Lezione("Interesse semplice", "Concetti base: entrate, uscite, risparmio e investimenti.", 10, "easy", List.of(0), List.of()));
-        lezioni.add(new Lezione("Interesse composto", "Come creare un budget efficace e risparmiare senza sforzi.", 10, "easy", List.of(0), List.of(0)));
-        lezioni.add(new Lezione("Investimenti base", "Azioni, obbligazioni, ETF e diversificazione.", 20, "medium", List.of(0), List.of(1)));
-        lezioni.add(new Lezione("Mercati finanziari moderni", "Derivati, fintech e nuovi strumenti digitali.", 30, "hard", List.of(), List.of(2)));
-        lezioni.add(new Lezione("Risparmio e budgeting", "Creare un piano di risparmio efficace.", 10, "easy", List.of(), List.of(3)));
-        lezioni.add(new Lezione("Debito e credito", "Gestire prestiti e carte di credito.", 20, "medium", List.of(), List.of(4)));
-        lezioni.add(new Lezione("ETF avanzati", "Tipi di ETF e strategie di investimento.", 30, "hard", List.of(), List.of(5)));
-        lezioni.add(new Lezione("Criptovalute e blockchain", "Investimenti digitali e sicurezza.", 30, "hard", List.of(), List.of(6)));
-
-        lezioni.add(new Lezione("Fondamenti di contabilità", "Attività, passività, patrimonio netto e principi contabili.", 10, "easy", List.of(0, 1, 2, 3, 4), List.of()));
-        lezioni.add(new Lezione("Partita doppia", "Come funzionano movimenti dare e avere.", 10, "easy", List.of(1), List.of(8)));
+    public LezioneService(DomandaService domandaService, LezioneRepo lezioneRepository, PercorsoRepo percorsoRepository) {
+        this.lezioneRepository = lezioneRepository;
+        this.percorsoRepository = percorsoRepository;
+        this.domandaService = domandaService;
     }
 
-    public List<Lezione> getLezioni() {
-        return lezioni;
+    @PostConstruct
+    @Transactional
+    public void init() {
+//        Percorso percorso2 = percorsoRepository.findByTitle("Informatica");
+//
+//        // Creiamo lezioni
+//        Lezione lezione1 = lezioneRepository.save(new Lezione(
+//                "Lezione Base",
+//                "Introduzione alla programmazione",
+//                10,
+//                "Facile",
+//                new ArrayList<>(),
+//                new ArrayList<>(),
+//                percorso2
+//        ));
+//
+//        percorso2.getLessons().add(lezione1);
+//        percorsoRepository.save(percorso2);
+
+
     }
 
-    public Lezione getLezione(int id){
-        return lezioni.stream()
-                .filter(a -> a.getId() == id)
-                .findFirst()
-                .orElse(null);
+    public Optional<Lezione> getLezioneById(int id) {
+        return lezioneRepository.findById(id);
     }
 
-    public int getNumeroLezioni(){
-        return lezioni.size();
-    }
-
-    public Lezione getLezioneById(int id) {
-        return lezioni.stream()
-                .filter(d -> d.getId() == id)
-                .findFirst()
-                .orElse(null);
+    public int getNumeroLezioni() {
+        return (int) lezioneRepository.count();
     }
 
 
+    @Transactional
+    public CreateLezioneRequest creaLezione(int idPercorso, CreateLezioneRequest request) {
 
-    public Lezione creaLezione( List<Integer> prerequisiti, Lezione nuovaLezione, List<Domanda> domandeCreate) {
-        if (nuovaLezione == null
-                || nuovaLezione.getTitle() == null || nuovaLezione.getTitle().isBlank()
-                || nuovaLezione.getDescription() == null || nuovaLezione.getDescription().isBlank()
-                || nuovaLezione.getPoints() <= 0
-                || nuovaLezione.getDifficulty() == null || nuovaLezione.getDifficulty().isBlank()
-                || domandeCreate == null || domandeCreate.isEmpty()) {
+        Percorso percorso = percorsoRepository.findById(idPercorso).orElse(null);
+        if (percorso == null) return null;
+
+        Lezione lezioneRequest = request.getLezione();
+        List<Domanda> nuoveDomande = request.getDomande();
+
+        if (lezioneRequest == null || nuoveDomande == null || nuoveDomande.isEmpty()) {
             return null;
         }
 
+        List<Lezione> prerequisiti = percorso.getLessons()
+                .stream()
+                .filter(l -> l.getId() > 0)
+                .toList();
 
+        Lezione nuovaLezione = new Lezione();
+        nuovaLezione.setTitle(lezioneRequest.getTitle());
+        nuovaLezione.setDescription(lezioneRequest.getDescription());
+        nuovaLezione.setDifficulty(lezioneRequest.getDifficulty());
+        nuovaLezione.setPoints(lezioneRequest.getPoints());
+        nuovaLezione.setPrerequisites(prerequisiti);
+        nuovaLezione.setPercorso(percorso);
 
-        Lezione lezione = new Lezione(
-                nuovaLezione.getTitle(),
-                nuovaLezione.getDescription(),
-                nuovaLezione.getPoints(),
-                nuovaLezione.getDifficulty(),
-                domandeCreate.stream().map(Domanda::getId).toList(),
-                prerequisiti
-        );
+        Lezione salvata = lezioneRepository.save(nuovaLezione);
 
-        lezioni.add(lezione);
+        List<Domanda> domandeCreate = domandaService.creaDomande(nuoveDomande, salvata);
+        if (domandeCreate.isEmpty()) return null;
 
-        return lezione;
+        salvata.setQuestions(domandeCreate);
+        // niente secondo save necessario se cascade è corretto
+
+        return new CreateLezioneRequest(salvata, domandeCreate);
+    }
+
+    public List<Domanda> getDomandeFromLezione(int idPercorso, int idLezione) {
+
+        Percorso percorso = percorsoRepository.findById(idPercorso)
+                .orElse(null);
+        if (percorso == null) return null;
+
+        Lezione lezione = lezioneRepository.findById(idLezione)
+                .orElse(null);
+        if (lezione == null) return null;
+
+        if (!percorso.getLessons().contains(lezione)) {
+            return null;
+        }
+
+        return lezione.getQuestions();
     }
 
 }

@@ -1,28 +1,37 @@
 package com.example.backend.Persistence;
 
+import jakarta.persistence.*;
+
+import java.util.ArrayList;
 import java.util.List;
 
+@Entity
+@Table(name = "percorso")
 public class Percorso {
 
-    private static int idcounter = 0;
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
+
+    @Column(name="title",  nullable=false, unique=true)
     private String title;
-    private List<Integer> lessons;
+
+    @OneToMany(mappedBy = "percorso", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Lezione> lessons;
 
 
-    public Percorso(String title, List<Integer> lezioni){
-        this.id = idcounter++;
+    public Percorso() {}
+
+    public Percorso(String title){
         this.title = title;
-        this.lessons = lezioni;
+        this.lessons = new ArrayList<>();
     }
 
-
     public int getId() { return this.id; }
-    public void setId() { this.id = idcounter++; }
-
     public String getTitle() { return this.title; }
+    public List<Lezione> getLessons() { return this.lessons; }
 
-    public List<Integer> getLessons() { return this.lessons; }
-    public void setLessons(List<Integer> lessons) { this.lessons = lessons; }
+    public void setTitle(String title) { this.title = title; }
+    public void setLessons(List<Lezione> lessons) { this.lessons = lessons; }
 }

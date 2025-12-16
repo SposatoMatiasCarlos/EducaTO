@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/utenti")
@@ -20,7 +21,6 @@ public class UserController {
         this.userService = userService;
     }
 
-
     public static class AvatarRequest {
         private int index;
         public int getIndex() { return index; }
@@ -32,53 +32,21 @@ public class UserController {
         public String getUsername() { return username; }
         public String getRuolo() { return ruolo; }
     }
-    public static class UserResponse {
-        private List<User> users;
-        private int totalCount;
 
-        public UserResponse(List<User> users, int totalCount) {
-            this.users = users;
-            this.totalCount = totalCount;
-        }
-
-        public List<User> getUsers() { return users; }
-        public int getTotalCount() { return totalCount; }
-    }
 
 
     @GetMapping("")
-    public ResponseEntity<UserResponse> getAllUsers(@RequestParam (required = false) Integer pagina,
-                                                    @RequestParam (required = false) Integer limite,
-                                                    HttpSession session) {
+    public ResponseEntity<List<User>> getUsers(@RequestParam(required = false) Integer pagina,
+                                                 @RequestParam(required = false) Integer limite,
+                                                 HttpSession session) {
 
         User user = (User) session.getAttribute("user");
-
         if (user == null || !"admin".equals(user.getRuolo())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-
-        List<User> tutti = userService.getUsers();
-        int totalCount = tutti.size();
-
-        if (pagina == null || limite == null) {
-            return ResponseEntity.ok(new UserResponse(tutti, totalCount));
-        }
-
-        int page = pagina < 1 ? 1 : pagina;
-        int limit = limite < 1 ? totalCount : limite;
-
-        int start = (page - 1) * limit;
-        int end = Math.min(start + limit, totalCount);
-
-        if (start >= totalCount) {
-            return ResponseEntity.ok(new UserResponse(List.of(), totalCount));
-        }
-
-        List<User> paginaUtenti = tutti.subList(start, end);
-
-        return ResponseEntity.ok(new UserResponse(paginaUtenti, totalCount));
-
+        List<User> response = userService.getUsers(pagina, limite);
+        return ResponseEntity.ok(response);
     }
 
 
@@ -88,10 +56,11 @@ public class UserController {
         User user = (User) session.getAttribute("user");
         if (user == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
-        boolean changed = userService.cambiaAvatarUtente(user, newavatar.getIndex());
-        if (!changed) return ResponseEntity.badRequest().build();
+        User updatedUser = userService.cambiaAvatarUtente(user.getId(), newavatar.getIndex());
+        if(updatedUser == null) return ResponseEntity.badRequest().build();
 
-        return ResponseEntity.ok(user);
+        session.setAttribute("user", updatedUser);
+        return ResponseEntity.ok(updatedUser);
     }
 
 
@@ -109,11 +78,11 @@ public class UserController {
         if( user == null || !user.getRuolo().equals("admin") ) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
 
-        User usertochange = userService.getUserByUsername(ruolo.getUsername());
-        if(usertochange == null) return ResponseEntity.notFound().build();
+        Optional<User> usertochange = userService.getUserByUsername(ruolo.getUsername());
+        if(usertochange.isEmpty()) return ResponseEntity.notFound().build();
 
-        if(userService.cambiaRuolo(usertochange, ruolo.getRuolo())){
-            return  ResponseEntity.ok(usertochange);
+        if(userService.cambiaRuolo(usertochange.get(), ruolo.getRuolo())){
+            return ResponseEntity.ok(usertochange.get());
         }
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

@@ -1,73 +1,60 @@
 package com.example.backend.Services;
 
-import com.example.backend.Persistence.Domanda;
-import com.example.backend.Persistence.Lezione;
-import com.example.backend.Persistence.Percorso;
+import com.example.backend.Persistence.*;
+import jakarta.annotation.PostConstruct;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class PercorsoService {
 
-    private List<Percorso> percorsi;
-    private LezioneService lezioneService;
+    private final PercorsoRepo percorsoRepo;
 
-    public PercorsoService(LezioneService lezioneService) {
-        this.lezioneService = lezioneService;
 
-        percorsi = new ArrayList<Percorso>();
-
-        percorsi.add(new Percorso("Finanza", List.of(1,2,3,4,17,18,19,20)));
-        percorsi.add(new Percorso("Contabilità", List.of(8, 9)));
-
+    public PercorsoService(PercorsoRepo percorsoRepo) {
+        this.percorsoRepo = percorsoRepo;
     }
 
-    public List<Percorso> getPercorsi() { return this.percorsi; }
-
-    public Percorso getPercorsoById(int id) {
-        return percorsi.stream()
-                .filter(d -> d.getId() == id)
-                .findFirst()
-                .orElse(null);
+    @PostConstruct
+    public void init(){
+        percorsoRepo.save(new Percorso("Finanza"));
+        percorsoRepo.save(new Percorso("Informatica"));
     }
 
+    public List<Percorso> getPercorsi() {
+        return this.percorsoRepo.findAll();
+    }
 
 
     public List<Lezione> getLezioniFromPercorso(int id) {
-        Percorso percorso = getPercorsoById(id);
-        if (percorso == null) return new ArrayList<>();
+        Percorso percorso = percorsoRepo.findById(id).orElse(null);
+        if (percorso == null) return List.of();
 
-        List<Lezione> result = new ArrayList<>();
-
-        for (Integer lezId : percorso.getLessons()) {
-            Lezione lezione = lezioneService.getLezione(lezId);
-
-            if (lezione != null) {
-                result.add(lezione);
-            }
-        }
-
-        return result;
+        return percorso.getLessons();
     }
 
 
-    public Percorso addNewPercorso(Percorso percorso){
+    @Transactional
+    public Percorso addNewPercorso(Percorso percorso) {
 
-        if(percorso.getTitle() == null || percorso.getTitle().trim().isEmpty()){ return null; }
+        if (percorso == null || percorso.getTitle() == null) return null;
 
-        boolean exists = percorsi.stream().anyMatch(p -> p.getTitle().equalsIgnoreCase(percorso.getTitle().trim()));
+        String titolo = percorso.getTitle().trim();
+        if (titolo.isEmpty()) return null;
 
-        if (exists) {
+        // controllo duplicati nel DB
+        if (percorsoRepo.existsByTitleIgnoreCase(titolo)) {
             return null;
         }
 
-        percorso.setLessons(new ArrayList<>());
-        percorso.setId();
-
-        percorsi.add(percorso);
-        return percorso;
+        Percorso nuovoPercorso = new Percorso();
+        nuovoPercorso.setTitle(percorso.getTitle());
+        nuovoPercorso.setLessons(new ArrayList<>());
+        return percorsoRepo.save(nuovoPercorso);
     }
 
 

@@ -17,9 +17,7 @@ import java.util.List;
 public class CartellaController{
 
     private final ArticoloService articoloService;
-    CartellaService cartellaService;
-
-
+    private final CartellaService cartellaService;
 
     public CartellaController(CartellaService cartellaService, ArticoloService articoloService) {
         this.cartellaService = cartellaService;
@@ -27,20 +25,15 @@ public class CartellaController{
     }
 
 
-
-
     @GetMapping("")
     public ResponseEntity<List<Cartella>> getCartella(){
         List<Cartella> cartelle = cartellaService.getCartelle();
-
         return ResponseEntity.ok(cartelle);
     }
 
 
-
     @PostMapping("")
     public ResponseEntity<Cartella> addNewCartella(@RequestBody Cartella cartella, HttpSession session){
-
         Cartella nuova = cartellaService.addNewCartella(cartella);
         if (nuova == null) return ResponseEntity.status(HttpStatus.CONFLICT).build(); // 409 Conflict
 
@@ -54,40 +47,23 @@ public class CartellaController{
     }
 
 
-
-
     @GetMapping("/{id}/articoli")
     public ResponseEntity<List<Articolo>> getArticoliFromCartella(@PathVariable int id){
         List<Articolo> articoli = cartellaService.getArticoliFromCartella(id);
-
-        if (articoli == null) {
-            return ResponseEntity.notFound().build();
-        }
+        if (articoli == null) return ResponseEntity.notFound().build();
 
         return ResponseEntity.ok(articoli);
     }
 
 
     @PostMapping("/{id}/articoli")
-    public ResponseEntity<Articolo> addNewArticolo(@PathVariable int id, @RequestBody Articolo articolo) {
+    public ResponseEntity<Articolo> addNewArticolo(@PathVariable int id, @RequestBody Articolo articolo, HttpSession session) {
 
-        // Trova la cartella
-        Cartella cartella = cartellaService.getCartella(id);
-        if (cartella == null) {
-            return ResponseEntity.notFound().build();
-        }
+        User user = (User) session.getAttribute("user");
+        if(user == null || user.getRuolo().equals("studente")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
-        // Crea il nuovo articolo
-        Articolo nuovoArticolo = articoloService.addNewArticolo(articolo);
-        if (nuovoArticolo == null) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        // Aggiungi l'articolo alla cartella
-        boolean added = cartellaService.addArticoloToCartella(cartella, nuovoArticolo.getId());
-        if (!added) {
-            return ResponseEntity.status(409).build();
-        }
+        Articolo nuovoArticolo = articoloService.addNewArticolo(id, articolo);
+        if (nuovoArticolo == null) return ResponseEntity.badRequest().build();
 
         return ResponseEntity.ok(nuovoArticolo);
     }

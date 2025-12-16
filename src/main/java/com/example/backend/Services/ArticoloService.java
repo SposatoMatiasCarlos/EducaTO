@@ -1,62 +1,80 @@
 package com.example.backend.Services;
 
 import com.example.backend.Persistence.Articolo;
+import com.example.backend.Persistence.ArticoloRepo;
+import com.example.backend.Persistence.Cartella;
+import com.example.backend.Persistence.CartellaRepo;
+import jakarta.annotation.PostConstruct;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
 public class ArticoloService {
 
-    private List<Articolo> articoli;
-    public ArticoloService() {
-        articoli = new ArrayList<>();
+    private final ArticoloRepo articoliRepo;
+    private final CartellaRepo cartellaRepo;
 
-        articoli.add(new Articolo(
-                "hudson",
-                "Domanda e Offerta",
-                "La legge della domanda e dell’offerta descrive come i prezzi si determinano nei mercati."
-        ));
+    public ArticoloService(ArticoloRepo articoliRepo, CartellaRepo cartellaRepo) {
+        this.articoliRepo = articoliRepo;
+        this.cartellaRepo = cartellaRepo;
+    }
 
-        articoli.add(new Articolo(
-                "hudson",
-                "Inflazione e Deflazione",
-                "L’inflazione indica un aumento generale dei prezzi, la deflazione una loro diminuzione."
-        ));
 
-        articoli.add(new Articolo(
-                "hudson",
-                "PIL e Indicatori Economici",
-                "Il PIL misura la ricchezza prodotta in un paese. Altri indicatori includono disoccupazione e tassi di interesse."
-        ));
+    @PostConstruct
+    @Transactional
+    public void init(){
+//        Cartella cartella = cartellaRepo.findByNome("Finanza");
+//
+//        Articolo articolo = articoliRepo.save(new Articolo(
+//                "hudson",
+//                "Domanda e Offerta",
+//                "La legge della domanda e dell’offerta descrive come i prezzi si determinano nei mercati.",
+//                cartella
+//        ));
+//
+//        cartella.getArticoli().add(articolo);
+//        cartellaRepo.save(cartella);
     }
 
 
     public List<Articolo> getArticoli() {
-        return this.articoli;
+        return articoliRepo.findAll();
     }
 
-    public Articolo getArticolo(int id) {
-        return articoli.stream()
-                .filter(a -> a.getId() == id)
-                .findFirst()
-                .orElse(null);
+    public Optional<Articolo> getArticolo(int id) {
+        return articoliRepo.findById(id);
     }
 
 
-    public Articolo addNewArticolo(Articolo articolo) {
-        articolo.setId();
+    @Transactional
+    public Articolo addNewArticolo(int cartellaId, Articolo articolo) {
+        // Validazioni base
+        if (articolo.getTitle() == null || articolo.getTitle().isBlank()
+                || articolo.getContent() == null || articolo.getContent().isBlank()
+                || articolo.getAuthor() == null || articolo.getAuthor().isBlank()) {
+            return null;
+        }
 
-        // potrei fare dei controlli piu approfonditi, mi limito a vedere se sono vuoti
-        if(articolo.getTitle() == null || articolo.getTitle().isEmpty()) return null;
-        if(articolo.getContent() == null || articolo.getContent().isEmpty()) return null;
-        if(articolo.getAuthor() == null || articolo.getAuthor().isEmpty()) return null;
+        // Trova la cartella
+        Cartella cartella = cartellaRepo.findById(cartellaId).orElse(null);
+        if (cartella == null) return null;
+
+        Articolo nuovoArticolo = new Articolo(articolo.getAuthor(), articolo.getTitle(), articolo.getContent(), cartella);
+        articoliRepo.save(nuovoArticolo);
+
+        // Aggiungi alla cartella
+        if (cartella.getArticoli() == null) {
+            cartella.setArticoli(new ArrayList<>());
+        }
+        cartella.getArticoli().add(nuovoArticolo);
 
 
-        articoli.add(articolo);
-        return articolo;
+        return nuovoArticolo;
     }
 
 }
