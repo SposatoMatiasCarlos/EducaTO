@@ -1,5 +1,7 @@
 package com.example.backend.Services;
 
+import com.example.backend.Dto.SafeUser;
+import com.example.backend.Dto.UserResponse;
 import com.example.backend.Persistence.*;
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
@@ -42,9 +44,99 @@ public class UserService {
                 100000,
                 "Challenger"
         ));
+
+        userRepository.save(new User(
+                "mario",
+                "password123",
+                1,
+                "studente",
+                1500,
+                "Silver"
+        ));
+
+        userRepository.save(new User(
+                "luigi",
+                "luigiPass",
+                1,
+                "studente",
+                3200,
+                "Gold"
+        ));
+
+        userRepository.save(new User(
+                "peach",
+                "peachSecret",
+                1,
+                "mod",
+                5400,
+                "Platinum"
+        ));
+
+        userRepository.save(new User(
+                "toad",
+                "toadPwd",
+                1,
+                "studente",
+                800,
+                "Bronze"
+        ));
+
+        userRepository.save(new User(
+                "bowser",
+                "bowserKing",
+                1,
+                "admin",
+                12000,
+                "Diamond"
+        ));
+
+        userRepository.save(new User(
+                "yoshi",
+                "yoshi123",
+                1,
+                "studente",
+                2600,
+                "Gold"
+        ));
+
+        userRepository.save(new User(
+                "link",
+                "hyrule",
+                1,
+                "studente",
+                9000,
+                "Platinum"
+        ));
+
+        userRepository.save(new User(
+                "zelda",
+                "wisdom",
+                1,
+                "mod",
+                11000,
+                "Diamond"
+        ));
+
+        userRepository.save(new User(
+                "samus",
+                "metroid",
+                1,
+                "studente",
+                7000,
+                "Platinum"
+        ));
+
+        userRepository.save(new User(
+                "kirby",
+                "poyo",
+                1,
+                "studente",
+                400,
+                "Bronze"
+        ));
     }
 
-    public List<User> getUsers(Integer pagina, Integer limite) {
+    public UserResponse getUsers(Integer pagina, Integer limite) {
         List<User> tuttiUtenti = userRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));
 
         int totalCount = tuttiUtenti.size();
@@ -54,11 +146,13 @@ public class UserService {
         int start = (page - 1) * limit;
         int end = Math.min(start + limit, totalCount);
 
+
+
         if (start >= totalCount) {
-            return List.of(); // nessun utente nella pagina richiesta
+            return new UserResponse(List.of(), 0);
         }
 
-        return tuttiUtenti.subList(start, end);
+        return new UserResponse(tuttiUtenti.subList(start, end), tuttiUtenti.size());
     }
 
 
@@ -168,10 +262,11 @@ public class UserService {
     }
 
 
-    public List<User> getTopUsers(int topN) {
-        List<User> allUsersSorted = userRepository.findAllByOrderByPointsDesc();
-        return allUsersSorted.stream()
+    public List<SafeUser> getTopUsers(int topN) {
+        return userRepository.findAllByOrderByPointsDesc()
+                .stream()
                 .limit(topN)
+                .map(SafeUser::new)
                 .toList();
     }
 

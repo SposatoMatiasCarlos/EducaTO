@@ -92,17 +92,5 @@ public class PercorsoController {
     }
 
 
-    @GetMapping("/{idPercorso}/lezioni/{idLezione}/domande")
-    public ResponseEntity<List<Domanda>> getDomandeFromLezione(
-            @PathVariable int idPercorso,
-            @PathVariable int idLezione) {
-
-        List<Domanda> domande = lezioneService.getDomandeFromLezione(idPercorso, idLezione);
-
-        if (domande == null) return ResponseEntity.notFound().build();
-        else if(domande.isEmpty()) return ResponseEntity.noContent().build();
-
-        return ResponseEntity.ok(domande);
-    }
 
 }

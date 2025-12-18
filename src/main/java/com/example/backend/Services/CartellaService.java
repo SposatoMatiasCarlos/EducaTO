@@ -22,8 +22,11 @@ public class CartellaService {
     @PostConstruct
     public void init(){
         cartelleRepo.save(new Cartella("Economia"));
-        cartelleRepo.save(new Cartella( "Informatica"));
-        cartelleRepo.save(new Cartella( "Finanza"));
+        cartelleRepo.save(new Cartella("Informatica"));
+        cartelleRepo.save(new Cartella("Finanza"));
+        cartelleRepo.save(new Cartella("Matematica"));
+        cartelleRepo.save(new Cartella("Storia"));
+        cartelleRepo.save(new Cartella("Scienze"));
     }
 
     public List<Cartella> getCartelle(){

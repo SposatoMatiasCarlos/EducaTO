@@ -1,5 +1,7 @@
 package com.example.backend.Controllers;
 
+import com.example.backend.Dto.SafeUser;
+import com.example.backend.Dto.UserResponse;
 import com.example.backend.Services.UserService;
 import com.example.backend.Persistence.User;
 import jakarta.servlet.http.HttpSession;
@@ -36,7 +38,7 @@ public class UserController {
 
 
     @GetMapping("")
-    public ResponseEntity<List<User>> getUsers(@RequestParam(required = false) Integer pagina,
+    public ResponseEntity<UserResponse> getUsers(@RequestParam(required = false) Integer pagina,
                                                  @RequestParam(required = false) Integer limite,
                                                  HttpSession session) {
 
@@ -45,7 +47,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        List<User> response = userService.getUsers(pagina, limite);
+        UserResponse response = userService.getUsers(pagina, limite);
         return ResponseEntity.ok(response);
     }
 
@@ -56,6 +58,7 @@ public class UserController {
         User user = (User) session.getAttribute("user");
         if (user == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
+
         User updatedUser = userService.cambiaAvatarUtente(user.getId(), newavatar.getIndex());
         if(updatedUser == null) return ResponseEntity.badRequest().build();
 
@@ -65,8 +68,8 @@ public class UserController {
 
 
     @GetMapping("/classifica")
-    public ResponseEntity<List<User>> getClassificaUsers() {
-        List<User> top10 = userService.getTopUsers(10);
+    public ResponseEntity<List<SafeUser>> getClassificaUsers() {
+        List<SafeUser> top10 = userService.getTopUsers(10);
         return ResponseEntity.ok(top10);
     }
 
